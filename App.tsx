@@ -4,9 +4,11 @@ import {
   Image,
   PanResponder,
   Pressable,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
 
@@ -31,8 +33,7 @@ const order: Screen[] = [
 ];
 
 const asset = {
-  logo: require("./assets/figma/login-logo.png"),
-  kakaoSymbol: require("./assets/figma/kakao-symbol.png"),
+  logo: require("./assets/Safecall_logo.png"),
   kakao: require("./assets/screen-reference/Login - Onboarding-1.png"),
   sosSystem: require("./assets/screen-reference/Login - Onboarding-7.png"),
   callPermission: require("./assets/screen-reference/Login - Onboarding-8.png"),
@@ -44,6 +45,9 @@ const asset = {
 };
 
 const W = 402;
+const H = 874;
+const LOGIN_MIN_WIDTH = 320;
+const LOGIN_MIN_HEIGHT = 568;
 const A = "#6366F1"; // Primary Color
 const CARD = "#202B3D";
 const MUTED = "#9CA3AF";
@@ -108,18 +112,89 @@ export default function App() {
 // ============================================================================
 
 function Login({ go }: { go: (screen: Screen) => void }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, LOGIN_MIN_WIDTH);
+  const viewportHeight = Math.max(height || H, LOGIN_MIN_HEIGHT);
+  const layoutWidth = Math.max(
+    LOGIN_MIN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(LOGIN_MIN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const logoSize = layoutWidth * (108 / W);
+  const logoMargin = layoutWidth * (34 / W);
+  const buttonWidth = layoutWidth * (300 / W);
+  const buttonHeight = buttonWidth * (45 / 300);
+  const buttonRadius = layoutWidth * (6 / W);
+  const actionGap = layoutWidth * (12 / W);
+
   return (
-    <Canvas bg={A}>
-      <Image source={asset.logo} style={s.loginLogo} resizeMode="contain" />
-      <Text style={s.loginSub}>내 손 안의 안심 통화 서비스.</Text>
-      <Text style={s.loginTitle}>SafeCall</Text>
-      <Pressable style={s.kakaoBtn} onPress={() => go("kakao")}>
-        <Image source={asset.kakaoSymbol} style={s.kakaoSymbol} resizeMode="contain" />
-        <Text style={s.kakaoText}>카카오 로그인</Text>
-      </Pressable>
-      <Pressable style={s.guestBtn} onPress={() => go("home")}>
-        <Text style={s.guestText}>로그인 없이 빠르게 사용하기</Text>
-      </Pressable>
+    <Canvas bg={A} fluid>
+      <ScrollView
+        style={s.loginScroll}
+        contentContainerStyle={[s.loginScrollContent, { minHeight: layoutHeight }]}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <View style={[s.loginScreen, { minWidth: LOGIN_MIN_WIDTH }]}>
+          <View style={[s.loginBrand, { paddingBottom: layoutWidth * (56 / W) }]}>
+            <Image
+              source={asset.logo}
+              style={[
+                s.loginLogo,
+                {
+                  width: logoSize,
+                  height: logoSize,
+                  marginBottom: logoMargin,
+                },
+              ]}
+              resizeMode="contain"
+            />
+            <Text style={[s.loginSub, { fontSize: 15 * typeScale, lineHeight: 22.5 * typeScale }]}>
+              내 손 안의 안심 통화 서비스
+            </Text>
+            <Text style={[s.loginTitle, { fontSize: 48 * typeScale, lineHeight: 72 * typeScale }]}>
+              SafeCall
+            </Text>
+          </View>
+          <View style={[s.loginActions, { gap: actionGap }]}>
+            <Pressable
+              style={[
+                s.kakaoBtn,
+                {
+                  width: buttonWidth,
+                  height: buttonHeight,
+                  borderRadius: buttonRadius,
+                },
+              ]}
+              onPress={() => go("kakao")}
+            >
+              <View style={s.kakaoIconSlot}>
+                <MaterialCommunityIcons name="chat" size={18 * typeScale} color="#000" />
+              </View>
+              <Text style={[s.kakaoText, { fontSize: 15 * typeScale, lineHeight: 22.5 * typeScale }]}>
+                카카오 로그인
+              </Text>
+              <View style={s.kakaoIconSlot} />
+            </Pressable>
+            <Pressable
+              style={[
+                s.guestBtn,
+                {
+                  width: buttonWidth,
+                  height: buttonHeight,
+                  borderRadius: buttonRadius,
+                },
+              ]}
+              onPress={() => go("home")}
+            >
+              <Text style={[s.guestText, { fontSize: 15 * typeScale, lineHeight: 22.5 * typeScale }]}>
+                로그인 없이 빠르게 사용하기
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </ScrollView>
     </Canvas>
   );
 }
@@ -586,8 +661,20 @@ function Withdraw({ go }: { go: (screen: Screen) => void }) {
 // 4. SHARED UI COMPONENTS (공유 UI 단위 컴포넌트)
 // ============================================================================
 
-function Canvas({ children, bg = "#000" }: { children: React.ReactNode; bg?: string }) {
-  return <View style={[s.canvas, { backgroundColor: bg }]}>{children}</View>;
+function Canvas({
+  children,
+  bg = "#000",
+  fluid,
+}: {
+  children: React.ReactNode;
+  bg?: string;
+  fluid?: boolean;
+}) {
+  return (
+    <View style={[s.canvas, fluid && s.fluidCanvas, { backgroundColor: bg }]}>
+      {children}
+    </View>
+  );
 }
 
 function ImageScreen({ src, onPress }: { src: number; onPress: () => void }) {
@@ -984,6 +1071,8 @@ const design = StyleSheet.create({
 const s = StyleSheet.create({
   root: {
     flex: 1,
+    width: "100%",
+    height: "100%",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#111",
@@ -995,6 +1084,10 @@ const s = StyleSheet.create({
     height: "100%",
     overflow: "hidden",
     position: "relative",
+  },
+  fluidCanvas: {
+    maxWidth: "100%",
+    minHeight: 0,
   },
   fullTap: {
     ...fill,
@@ -1017,69 +1110,71 @@ const s = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  loginLogo: {
-    position: "absolute",
-    top: 290,
-    left: 147,
-    width: 108,
-    height: 108,
+  loginScroll: {
+    flex: 1,
+    width: "100%",
   },
-  kakaoSymbol: {
-    position: "absolute",
-    left: 14,
-    top: 13.5,
-    width: 18,
-    height: 18,
+  loginScrollContent: {
+    flexGrow: 1,
+  },
+  loginScreen: {
+    flex: 1,
+    width: "100%",
+    alignItems: "center",
+  },
+  loginBrand: {
+    flex: 0.68,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+  loginActions: {
+    flex: 0.32,
+    width: "100%",
+    alignItems: "center",
+    paddingTop: "2%",
+  },
+  loginLogo: {
   },
   loginSub: {
-    position: "absolute",
-    top: 432,
-    left: 0,
-    right: 0,
     color: "#fff",
     fontSize: 15,
     lineHeight: 22.5,
     fontWeight: "700",
     textAlign: "center",
+    width: "100%",
   },
   loginTitle: {
-    position: "absolute",
-    top: 444,
-    left: 111,
-    width: 181,
-    height: 72,
     color: "#fff",
     fontSize: 48,
     lineHeight: 72,
     fontWeight: "900",
     fontFamily: "Leelawadee UI",
     letterSpacing: -1.6,
+    textAlign: "center",
+    width: "100%",
   },
   kakaoBtn: {
-    position: "absolute",
-    left: 51,
-    top: 683,
-    width: 300,
-    height: 45,
-    borderRadius: 6,
     backgroundColor: "#FEE500",
     alignItems: "center",
     justifyContent: "center",
+    flexDirection: "row",
     overflow: "hidden",
   },
+  kakaoIconSlot: {
+    flex: 1,
+    alignItems: "flex-start",
+    paddingLeft: "4.7%",
+  },
   kakaoText: {
+    flex: 2,
     color: "rgba(0,0,0,0.85)",
     fontSize: 15,
     lineHeight: 22.5,
     fontWeight: "700",
+    textAlign: "center",
   },
   guestBtn: {
-    position: "absolute",
-    left: 51,
-    top: 740,
-    width: 300,
-    height: 45,
-    borderRadius: 6,
     backgroundColor: "#dddddd",
     alignItems: "center",
     justifyContent: "center",
@@ -2268,4 +2363,3 @@ const s = StyleSheet.create({
     fontWeight: "400",
   },
 });
-
