@@ -46,12 +46,13 @@ const asset = {
 
 const W = 402;
 const H = 874;
-const LOGIN_MIN_WIDTH = 320;
-const LOGIN_MIN_HEIGHT = 568;
+const MIN_SCREEN_WIDTH = 320;
+const MIN_SCREEN_HEIGHT = 568;
 const A = "#6366F1"; // Primary Color
 const CARD = "#202B3D";
 const MUTED = "#9CA3AF";
 const Y = "#FFF300";
+const INTER = "Inter";
 
 
 // ============================================================================
@@ -113,13 +114,13 @@ export default function App() {
 
 function Login({ go }: { go: (screen: Screen) => void }) {
   const { width, height } = useWindowDimensions();
-  const viewportWidth = Math.max(width || W, LOGIN_MIN_WIDTH);
-  const viewportHeight = Math.max(height || H, LOGIN_MIN_HEIGHT);
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
   const layoutWidth = Math.max(
-    LOGIN_MIN_WIDTH,
+    MIN_SCREEN_WIDTH,
     Math.min(viewportWidth, viewportHeight * (W / H)),
   );
-  const layoutHeight = Math.max(LOGIN_MIN_HEIGHT, viewportHeight);
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
   const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
   const logoSize = layoutWidth * (108 / W);
   const logoMargin = layoutWidth * (34 / W);
@@ -136,7 +137,7 @@ function Login({ go }: { go: (screen: Screen) => void }) {
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
-        <View style={[s.loginScreen, { minWidth: LOGIN_MIN_WIDTH }]}>
+        <View style={[s.loginScreen, { minWidth: MIN_SCREEN_WIDTH }]}>
           <View style={[s.loginBrand, { paddingBottom: layoutWidth * (56 / W) }]}>
             <Image
               source={asset.logo}
@@ -200,6 +201,107 @@ function Login({ go }: { go: (screen: Screen) => void }) {
 }
 
 function Profile({ go, edit }: { go: (screen: Screen) => void; edit?: boolean }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const formWidth = layoutWidth * (332 / W);
+  const fieldGap = layoutWidth * (31 / W);
+  const segmentHeight = layoutWidth * (43 / W);
+  const segmentPadding = layoutWidth * (5 / W);
+  const segmentRadius = layoutWidth * (10 / W);
+  const buttonWidth = layoutWidth * (362 / W);
+  const buttonHeight = buttonWidth * (56 / 362);
+  const buttonRadius = layoutWidth * (20 / W);
+
+  if (!edit) {
+    return (
+      <Canvas fluid>
+        <ScrollView
+          style={s.profileScroll}
+          contentContainerStyle={[
+            s.profileScrollContent,
+            {
+              minHeight: layoutHeight,
+              paddingTop: layoutHeight * (50 / H),
+              paddingBottom: layoutWidth * (20 / W),
+            },
+          ]}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          <View style={[s.profileFluidBox, { width: formWidth, minWidth: MIN_SCREEN_WIDTH * (332 / W) }]}>
+            <ProfileField
+              label="이름"
+              value="김이름"
+              help="긴급 문자에서 보호자가 사용자를 식별할 수 있도록 안내되는 데 사용됩니다."
+              marginBottom={fieldGap}
+              typeScale={typeScale}
+            />
+            <ProfileField
+              label="전화번호"
+              value="010-0000-0000"
+              help={"긴급 문자에서 보호자가 사용자를 식별할 수 있도록 안내되는 데 사용됩니다.\n전화번호는 가운데 네 자리를 가린 형태로 안내됩니다."}
+              marginBottom={fieldGap}
+              typeScale={typeScale}
+            />
+            <ProfileField
+              label="생년월일"
+              value="2026.09.06"
+              marginBottom={fieldGap}
+              typeScale={typeScale}
+            />
+            <Text style={[s.genderLabelFluid, { fontSize: 13 * typeScale, lineHeight: 19.5 * typeScale }]}>
+              성별
+            </Text>
+            <View
+              style={[
+                s.segmentFluid,
+                {
+                  height: segmentHeight,
+                  borderRadius: segmentRadius,
+                  padding: segmentPadding,
+                  gap: layoutWidth * (10 / W),
+                },
+              ]}
+            >
+              <View style={s.segmentOption}>
+                <Text style={[s.segmentText, s.segmentTextCentered, { fontSize: 15 * typeScale }]}>
+                  남자
+                </Text>
+              </View>
+              <View style={[s.selectedSegment, { height: "100%", borderRadius: segmentRadius }]}>
+                <Text style={[s.segmentText, s.segmentTextCentered, { fontSize: 15 * typeScale }]}>
+                  여자
+                </Text>
+              </View>
+            </View>
+          </View>
+          <Pressable
+            style={[
+              s.profileNextButton,
+              {
+                width: buttonWidth,
+                height: buttonHeight,
+                borderRadius: buttonRadius,
+              },
+            ]}
+            onPress={() => go("contacts")}
+          >
+            <Text style={[s.bottomText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+              다음
+            </Text>
+          </Pressable>
+        </ScrollView>
+      </Canvas>
+    );
+  }
+
   return (
     <Canvas>
       {edit && <Top title="사용자 정보 수정" back={() => go("setting")} />}
@@ -209,9 +311,9 @@ function Profile({ go, edit }: { go: (screen: Screen) => void; edit?: boolean })
         <Field label="생년월일" value="2026.09.06" top={232} />
         <Text style={s.genderLabel}>성별</Text>
         <View style={s.segment}>
-          <Text style={s.segmentText}>남자</Text>
+          <Text style={[s.segmentText, s.segmentTextCentered]}>남자</Text>
           <View style={s.selectedSegment}>
-            <Text style={s.segmentText}>여자</Text>
+            <Text style={[s.segmentText, s.segmentTextCentered]}>여자</Text>
           </View>
         </View>
       </View>
@@ -221,17 +323,141 @@ function Profile({ go, edit }: { go: (screen: Screen) => void; edit?: boolean })
 }
 
 function Contacts({ go, modal, edit }: { go: (screen: Screen) => void; modal?: boolean; edit?: boolean }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const contentWidth = layoutWidth * (362 / W);
+  const textWidth = layoutWidth * (290 / W);
+  const cardHeight = contentWidth * (80 / 362);
+  const buttonHeight = contentWidth * (56 / 362);
+  const plusSize = layoutWidth * (42 / W);
+
+  if (!edit) {
+    return (
+      <Canvas fluid>
+        <ScrollView
+          style={s.contactScroll}
+          contentContainerStyle={[
+            s.contactScrollContent,
+            {
+              minHeight: layoutHeight,
+              paddingTop: layoutHeight * (59 / H),
+              paddingBottom: layoutWidth * (20 / W),
+            },
+          ]}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          <View style={[modal && s.dim, s.contactFluidContent, { width: contentWidth }]}>
+            <View style={[s.contactHeaderFluid, { width: textWidth }]}>
+              <Text
+                style={[
+                  s.contactTitle,
+                  {
+                    fontSize: 26 * typeScale,
+                    lineHeight: 34 * typeScale,
+                  },
+                ]}
+              >
+                긴급 연락처를 입력해주세요.
+              </Text>
+              <Text
+                style={[
+                  s.contactDesc,
+                  {
+                    fontSize: 13 * typeScale,
+                    lineHeight: 18 * typeScale,
+                  },
+                ]}
+              >
+                저장된 연락처로 긴급 연락(현재 내 위치를 전송합니다)을 발송할 수 있습니다. 최대 2명까지 입력 가능합니다.
+              </Text>
+              <Text
+                style={[
+                  s.warn,
+                  {
+                    width: textWidth * (276 / 290),
+                    fontSize: 12 * typeScale,
+                    lineHeight: 15 * typeScale,
+                  },
+                ]}
+              >
+                {modal ? "• " : ""}연락처를 아무것도 입력하지 않을 시 긴급 연락 기능을 사용할 수 없습니다
+              </Text>
+            </View>
+
+            <ContactCard
+              fluid
+              style={{
+                width: contentWidth,
+                height: cardHeight,
+                borderRadius: layoutWidth * (28 / W),
+                paddingLeft: layoutWidth * (30 / W),
+              }}
+              avatarSize={layoutWidth * (60 / W)}
+              iconSize={layoutWidth * (42 / W)}
+              textScale={typeScale}
+            />
+
+            <Pressable
+              style={[
+                s.plusFluid,
+                {
+                  width: plusSize,
+                  height: plusSize,
+                  borderRadius: plusSize / 2,
+                  marginTop: layoutWidth * (28 / W),
+                },
+              ]}
+              onPress={() => go("contactModal")}
+            >
+              <MaterialCommunityIcons name="plus" size={39 * typeScale} color="#000" />
+            </Pressable>
+          </View>
+
+          <Pressable
+            style={[
+              s.contactNextButton,
+              modal && s.bottomOff,
+              {
+                width: contentWidth,
+                height: buttonHeight,
+                borderRadius: layoutWidth * (20 / W),
+              },
+            ]}
+            onPress={() => go("terms")}
+            disabled={modal}
+          >
+            <Text
+              style={[
+                s.bottomText,
+                modal && s.bottomTextOff,
+                { fontSize: 20 * typeScale, lineHeight: 30 * typeScale },
+              ]}
+            >
+              다음
+            </Text>
+          </Pressable>
+        </ScrollView>
+        {modal && (
+          <View style={s.modalLayer}>
+            <ContactModal go={go} />
+          </View>
+        )}
+      </Canvas>
+    );
+  }
+
   return (
     <Canvas>
       {edit && <Top title="비상 연락처 수정" back={() => go("setting")} />}
       <View style={modal ? s.dim : undefined}>
-        {!edit && (
-          <View style={s.contactHeader}>
-            <Text style={s.contactTitle}>긴급 연락처를 입력해주세요.</Text>
-            <Text style={s.contactDesc}>저장된 연락처로 긴급 연락(현재 내 위치를 전송합니다)을 발송할 수 있습니다. 최대 2명까지 입력 가능합니다.</Text>
-            <Text style={s.warn}>{modal ? "• " : ""}연락처를 아무것도 입력하지 않을 시 긴급 연락 기능을 사용할 수 없습니다</Text>
-          </View>
-        )}
         <ContactCard top={edit ? 106 : 205} />
         <Pressable style={[s.plus, edit && { top: 205 }]} onPress={() => go("contactModal")}>
           <MaterialCommunityIcons name="plus" size={39} color="#000" />
@@ -685,6 +911,47 @@ function ImageScreen({ src, onPress }: { src: number; onPress: () => void }) {
   );
 }
 
+function ProfileField({
+  label,
+  value,
+  help,
+  marginBottom,
+  typeScale,
+}: {
+  label: string;
+  value: string;
+  help?: string;
+  marginBottom: number;
+  typeScale: number;
+}) {
+  return (
+    <View style={[s.profileFieldFluid, { marginBottom }]}>
+      <Text style={[s.fieldLabel, { fontSize: 13 * typeScale, lineHeight: 19.5 * typeScale }]}>
+        {label}
+      </Text>
+      <Text
+        style={[
+          s.fieldValue,
+          {
+            marginTop: 8 * typeScale,
+            marginLeft: 5 * typeScale,
+            fontSize: 20 * typeScale,
+            lineHeight: 30 * typeScale,
+          },
+        ]}
+      >
+        {value}
+      </Text>
+      <View style={s.line} />
+      {help && (
+        <Text style={[s.helpText, { marginTop: 8 * typeScale, fontSize: 10 * typeScale, lineHeight: 12 * typeScale }]}>
+          {help}
+        </Text>
+      )}
+    </View>
+  );
+}
+
 function Field({ label, value, help, top }: { label: string; value: string; help?: string; top: number }) {
   return (
     <View style={[s.field, { top }]}>
@@ -696,15 +963,39 @@ function Field({ label, value, help, top }: { label: string; value: string; help
   );
 }
 
-function ContactCard({ top }: { top: number }) {
+function ContactCard({
+  top,
+  fluid,
+  style,
+  avatarSize = 60,
+  iconSize = 42,
+  textScale = 1,
+}: {
+  top?: number;
+  fluid?: boolean;
+  style?: React.ComponentProps<typeof View>["style"];
+  avatarSize?: number;
+  iconSize?: number;
+  textScale?: number;
+}) {
   return (
-    <View style={[s.contactCard, { top }]}>
-      <View style={s.avatar}>
-        <MaterialCommunityIcons name="account" size={42} color="#fff" />
+    <View style={[s.contactCard, !fluid && s.contactCardFixed, top !== undefined && { top }, style]}>
+      <View
+        style={[
+          s.avatar,
+          {
+            width: avatarSize,
+            height: avatarSize,
+            borderRadius: avatarSize / 2,
+            marginRight: 20 * textScale,
+          },
+        ]}
+      >
+        <MaterialCommunityIcons name="account" size={iconSize} color="#fff" />
       </View>
       <View>
-        <Text style={s.contactName}>보호자 1</Text>
-        <Text style={s.contactRelation}>관계</Text>
+        <Text style={[s.contactName, { fontSize: 16 * textScale, lineHeight: 19 * textScale }]}>보호자 1</Text>
+        <Text style={[s.contactRelation, { fontSize: 12 * textScale, lineHeight: 15 * textScale }]}>관계</Text>
       </View>
     </View>
   );
@@ -880,6 +1171,7 @@ const design = StyleSheet.create({
     justifyContent: "center",
   },
   homeTitle: {
+    fontFamily: INTER,
     position: "absolute",
     top: 183,
     left: 56,
@@ -892,6 +1184,7 @@ const design = StyleSheet.create({
     includeFontPadding: false,
   },
   homeSub: {
+    fontFamily: INTER,
     position: "absolute",
     top: 214,
     left: 69,
@@ -910,6 +1203,7 @@ const design = StyleSheet.create({
     height: 220,
   },
   homeNotice: {
+    fontFamily: INTER,
     position: "absolute",
     top: 611,
     left: 86,
@@ -922,9 +1216,11 @@ const design = StyleSheet.create({
     includeFontPadding: false,
   },
   available: {
+    fontFamily: INTER,
     color: "#6366F1",
   },
   warnInline: {
+    fontFamily: INTER,
     color: "#A35454",
   },
   homeInfo: {
@@ -972,6 +1268,7 @@ const design = StyleSheet.create({
     backgroundColor: "#455269",
   },
   homeInfoText: {
+    fontFamily: INTER,
     position: "absolute",
     top: 39.5,
     left: 30,
@@ -983,10 +1280,12 @@ const design = StyleSheet.create({
     includeFontPadding: false,
   },
   blueBold: {
+    fontFamily: INTER,
     color: "#7A8BFB",
     fontWeight: "900",
   },
   voiceTitle: {
+    fontFamily: INTER,
     position: "absolute",
     top: 49,
     left: 119,
@@ -1014,6 +1313,7 @@ const design = StyleSheet.create({
     overflow: "hidden",
   },
   voiceCaptionLeft: {
+    fontFamily: INTER,
     position: "absolute",
     top: 0,
     left: -31.5,
@@ -1025,6 +1325,7 @@ const design = StyleSheet.create({
     includeFontPadding: false,
   },
   voiceCaptionRight: {
+    fontFamily: INTER,
     position: "absolute",
     top: 458,
     left: 225.5,
@@ -1048,6 +1349,7 @@ const design = StyleSheet.create({
     boxShadow: "0px 10px 7px 0px rgba(0,0,0,0.05)" as any,
   },
   bubbleText: {
+    fontFamily: INTER,
     color: "#FFFFFF",
     fontSize: 13,
     lineHeight: 16,
@@ -1116,6 +1418,49 @@ const s = StyleSheet.create({
   },
   loginScrollContent: {
     flexGrow: 1,
+  },
+  profileScroll: {
+    flex: 1,
+    width: "100%",
+  },
+  profileScrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+  },
+  profileFluidBox: {
+    alignSelf: "center",
+  },
+  profileFieldFluid: {
+    width: "100%",
+  },
+  genderLabelFluid: {
+    fontFamily: INTER,
+    color: "#fff",
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  segmentFluid: {
+    width: "100%",
+    backgroundColor: CARD,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  segmentOption: {
+    flex: 1,
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  segmentTextCentered: {
+    includeFontPadding: false,
+    textAlignVertical: "center",
+  },
+  profileNextButton: {
+    marginTop: "auto",
+    backgroundColor: A,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
   },
   loginScreen: {
     flex: 1,
@@ -1199,12 +1544,14 @@ const s = StyleSheet.create({
     width: 332,
   },
   fieldLabel: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 13,
     lineHeight: 19.5,
     fontWeight: "600",
   },
   fieldValue: {
+    fontFamily: INTER,
     marginTop: 8,
     marginLeft: 5,
     color: "rgba(204,204,204,0.6)",
@@ -1217,12 +1564,14 @@ const s = StyleSheet.create({
     backgroundColor: A,
   },
   helpText: {
+    fontFamily: INTER,
     marginTop: 8,
     color: "#7A8BFB",
     fontSize: 10,
     lineHeight: 12,
   },
   genderLabel: {
+    fontFamily: INTER,
     position: "absolute",
     top: 322,
     color: "#fff",
@@ -1239,14 +1588,16 @@ const s = StyleSheet.create({
     padding: 5,
     backgroundColor: CARD,
     flexDirection: "row",
+    alignItems: "center",
     gap: 10,
   },
   segmentText: {
+    fontFamily: INTER,
     flex: 1,
     color: "#fff",
     fontSize: 15,
     textAlign: "center",
-    lineHeight: 22.5,
+    lineHeight: 33,
   },
   selectedSegment: {
     flex: 1,
@@ -1276,33 +1627,53 @@ const s = StyleSheet.create({
     backgroundColor: "#25235B",
   },
   bottomText: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 20,
     lineHeight: 30,
   },
   bottomTextOff: {
+    fontFamily: INTER,
     color: "#777",
   },
-  contactHeader: {
-    position: "absolute",
-    top: 59,
-    left: 58,
-    width: 290,
+  contactScroll: {
+    flex: 1,
+    width: "100%",
+  },
+  contactScrollContent: {
+    flexGrow: 1,
     alignItems: "center",
   },
+  contactFluidContent: {
+    alignItems: "center",
+  },
+  contactHeaderFluid: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  contactNextButton: {
+    marginTop: "auto",
+    backgroundColor: A,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
   contactTitle: {
+    fontFamily: INTER,
     alignSelf: "flex-start",
     color: "#fff",
     fontSize: 26,
     lineHeight: 34,
   },
   contactDesc: {
+    fontFamily: INTER,
     marginTop: 6,
     color: "#fff",
     fontSize: 13,
     lineHeight: 18,
   },
   warn: {
+    fontFamily: INTER,
     marginTop: 6,
     width: 276,
     color: Y,
@@ -1311,8 +1682,6 @@ const s = StyleSheet.create({
     textAlign: "center",
   },
   contactCard: {
-    position: "absolute",
-    left: 20,
     width: 362,
     height: 80,
     borderRadius: 28,
@@ -1320,6 +1689,10 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingLeft: 30,
+  },
+  contactCardFixed: {
+    position: "absolute",
+    left: 20,
   },
   avatar: {
     width: 60,
@@ -1331,11 +1704,13 @@ const s = StyleSheet.create({
     marginRight: 20,
   },
   contactName: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 16,
     fontWeight: "800",
   },
   contactRelation: {
+    fontFamily: INTER,
     marginTop: 4,
     color: "#fff",
     fontSize: 12,
@@ -1347,6 +1722,11 @@ const s = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
+    backgroundColor: A,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  plusFluid: {
     backgroundColor: A,
     alignItems: "center",
     justifyContent: "center",
@@ -1384,16 +1764,19 @@ const s = StyleSheet.create({
     width: 275,
   },
   modalLabel: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 13,
     fontWeight: "800",
   },
   modalValue: {
+    fontFamily: INTER,
     marginTop: 10,
     color: MUTED,
     fontSize: 22,
   },
   error: {
+    fontFamily: INTER,
     marginTop: 8,
     color: "#F97316",
     fontSize: 10,
@@ -1416,12 +1799,14 @@ const s = StyleSheet.create({
     gap: 5,
   },
   topTitle: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 16,
     lineHeight: 18,
     fontWeight: "800",
   },
   termsTitle: {
+    fontFamily: INTER,
     position: "absolute",
     top: 59,
     left: 34,
@@ -1439,6 +1824,7 @@ const s = StyleSheet.create({
     right: 36,
   },
   termsText: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 13,
     lineHeight: 16,
@@ -1461,11 +1847,13 @@ const s = StyleSheet.create({
     borderColor: A,
   },
   agreeText: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 14,
     lineHeight: 20,
   },
   permTitleBasic: {
+    fontFamily: INTER,
     position: "absolute",
     top: 61,
     left: 54,
@@ -1477,6 +1865,7 @@ const s = StyleSheet.create({
     textAlign: "center",
   },
   permTitleSos: {
+    fontFamily: INTER,
     position: "absolute",
     top: 61,
     left: 43,
@@ -1509,24 +1898,28 @@ const s = StyleSheet.create({
     width: 258,
   },
   permStrong: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 18,
     lineHeight: 27,
     fontWeight: "800",
   },
   permGray: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 13,
     lineHeight: 19.5,
     marginTop: 8,
   },
   permYellow: {
+    fontFamily: INTER,
     color: Y,
     fontSize: 12,
     lineHeight: 16,
     marginTop: 8,
   },
   sosPath: {
+    fontFamily: INTER,
     position: "absolute",
     top: 432,
     left: 43,
@@ -1536,6 +1929,7 @@ const s = StyleSheet.create({
     lineHeight: 19.5,
   },
   sosWarning: {
+    fontFamily: INTER,
     position: "absolute",
     top: 517,
     left: 43,
@@ -1545,6 +1939,7 @@ const s = StyleSheet.create({
     lineHeight: 16,
   },
   locationTitle: {
+    fontFamily: INTER,
     position: "absolute",
     top: 87,
     left: 32,
@@ -1555,6 +1950,7 @@ const s = StyleSheet.create({
     fontWeight: "400",
   },
   locationBubble: {
+    fontFamily: INTER,
     position: "absolute",
     left: 55,
     width: 292,
@@ -1582,6 +1978,7 @@ const s = StyleSheet.create({
     height: 874,
   },
   completeTitle: {
+    fontFamily: INTER,
     position: "absolute",
     top: 379,
     left: 0,
@@ -1593,6 +1990,7 @@ const s = StyleSheet.create({
     textAlign: "center",
   },
   completeSub: {
+    fontFamily: INTER,
     position: "absolute",
     top: 435,
     left: 0,
@@ -1628,12 +2026,14 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   completeSkipText: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 20,
     lineHeight: 30,
     fontWeight: "400",
   },
   completeOkText: {
+    fontFamily: INTER,
     color: "#111",
     fontSize: 20,
     lineHeight: 30,
@@ -1659,6 +2059,7 @@ const s = StyleSheet.create({
     width: 151,
   },
   miniText: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 12,
     fontWeight: "700",
@@ -1694,6 +2095,7 @@ const s = StyleSheet.create({
     backgroundColor: A,
   },
   personaTitle: {
+    fontFamily: INTER,
     position: "absolute",
     top: 120,
     left: 10,
@@ -1731,6 +2133,7 @@ const s = StyleSheet.create({
     backgroundColor: A,
   },
   choiceText: {
+    fontFamily: INTER,
     marginTop: 10,
     color: "#fff",
     fontSize: 13,
@@ -1760,6 +2163,7 @@ const s = StyleSheet.create({
     borderColor: A,
   },
   personLabel: {
+    fontFamily: INTER,
     marginTop: 9,
     color: "#fff",
     fontSize: 13,
@@ -1805,6 +2209,7 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
   },
   voiceCaptionLeft: {
+    fontFamily: INTER,
     position: "absolute",
     top: 477,
     left: 8,
@@ -1815,6 +2220,7 @@ const s = StyleSheet.create({
     textAlign: "center",
   },
   voiceCaptionRight: {
+    fontFamily: INTER,
     position: "absolute",
     top: 477,
     right: 8,
@@ -1837,12 +2243,14 @@ const s = StyleSheet.create({
     paddingHorizontal: 8,
   },
   bubbleText: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 13,
     lineHeight: 20,
     textAlign: "center",
   },
   loadingText: {
+    fontFamily: INTER,
     position: "absolute",
     top: 208,
     left: 0,
@@ -1909,12 +2317,14 @@ const s = StyleSheet.create({
     paddingTop: 12,
   },
   helpQ: {
+    fontFamily: INTER,
     color: "#7F8BFF",
     fontSize: 10,
     fontWeight: "700",
     flex: 1,
   },
   helpA: {
+    fontFamily: INTER,
     position: "absolute",
     top: 39,
     left: 12,
@@ -1944,6 +2354,7 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.66)",
   },
   incoming: {
+    fontFamily: INTER,
     position: "absolute",
     top: 159,
     left: 0,
@@ -1954,6 +2365,7 @@ const s = StyleSheet.create({
     textAlign: "center",
   },
   ringName: {
+    fontFamily: INTER,
     position: "absolute",
     top: 193,
     left: 0,
@@ -1980,6 +2392,7 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   smallWhite: {
+    fontFamily: INTER,
     marginTop: 8,
     color: "#fff",
     fontSize: 12,
@@ -2010,6 +2423,7 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   callTime: {
+    fontFamily: INTER,
     position: "absolute",
     top: 113,
     left: 0,
@@ -2020,6 +2434,7 @@ const s = StyleSheet.create({
     textAlign: "center",
   },
   callName: {
+    fontFamily: INTER,
     position: "absolute",
     top: 182,
     left: 0,
@@ -2031,6 +2446,7 @@ const s = StyleSheet.create({
     textAlign: "center",
   },
   callHint: {
+    fontFamily: INTER,
     position: "absolute",
     top: 407,
     left: 0,
@@ -2061,6 +2477,7 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   padText: {
+    fontFamily: INTER,
     marginTop: 9,
     color: "#fff",
     fontSize: 12,
@@ -2080,6 +2497,7 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   callBottomNotice: {
+    fontFamily: INTER,
     position: "absolute",
     top: 814,
     left: 0,
@@ -2108,12 +2526,14 @@ const s = StyleSheet.create({
     marginRight: 20,
   },
   settingName: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 16,
     lineHeight: 19,
     fontWeight: "800",
   },
   settingSub: {
+    fontFamily: INTER,
     marginTop: 8,
     color: "#9D9D9D",
     fontSize: 11,
@@ -2160,6 +2580,7 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
   },
   setRowText: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 13,
     lineHeight: 16,
@@ -2177,12 +2598,14 @@ const s = StyleSheet.create({
     paddingHorizontal: 15,
   },
   dialogTitle: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 13,
     lineHeight: 16,
     fontWeight: "800",
   },
   dialogBody: {
+    fontFamily: INTER,
     color: MUTED,
     fontSize: 10,
     lineHeight: 15,
@@ -2212,11 +2635,13 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   dialogButtonText: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 10,
     lineHeight: 15,
   },
   team: {
+    fontFamily: INTER,
     position: "absolute",
     bottom: 66,
     left: 0,
@@ -2243,6 +2668,7 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   soundText: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 9,
     marginTop: 8,
@@ -2273,6 +2699,7 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
   },
   permSettingText: {
+    fontFamily: INTER,
     position: "absolute",
     top: 101,
     left: 35,
@@ -2302,11 +2729,13 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   permRowTitle: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 14,
     fontWeight: "800",
   },
   permBody: {
+    fontFamily: INTER,
     color: MUTED,
     fontSize: 11,
     lineHeight: 16,
@@ -2320,6 +2749,7 @@ const s = StyleSheet.create({
     gap: 13,
   },
   withdrawText: {
+    fontFamily: INTER,
     position: "absolute",
     top: 68,
     left: 25,
@@ -2357,6 +2787,7 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   withdrawButtonText: {
+    fontFamily: INTER,
     color: "#fff",
     fontSize: 10,
     lineHeight: 15,
