@@ -895,18 +895,155 @@ function Complete({ go }: { go: (screen: Screen) => void }) {
 }
 
 function PersonaUse({ go }: { go: (screen: Screen) => void }) {
+  const [selected, setSelected] = useState(0);
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const topButtonTop = layoutHeight * (53 / H);
+  const contentWidth = layoutWidth * (362 / W);
+  const choiceSize = layoutWidth * (100 / W);
+  const choiceColumnWidth = layoutWidth * (100 / W);
+  const choiceGap = layoutWidth * (24 / W);
+  const nextHeight = contentWidth * (56 / 362);
+
+  const choices: Array<{ icon: IconName; text: string }> = [
+    { icon: "walk", text: "누군가 따라오는\n것 같아요" },
+    { icon: "car", text: "택시 안이\n불안해요" },
+    { icon: "account-tie", text: "낯선 사람이\n근처에 있어요" },
+    { icon: "account-group", text: "혼자 귀가하기\n무서워요" },
+  ];
+
   return (
-    <Canvas>
-      <Pager active={0} />
-      <Text style={s.personaTitle}>어떤 상황에서 안심 통화를 사용하시나요?</Text>
-      <View style={s.choiceGrid}>
-        <Choice icon="walk" text={"누군가 따라오는\n것 같아요"} selected />
-        <Choice icon="car" text={"택시 안이\n불안해요"} />
-        <Choice icon="account-tie" text={"낯선 사람이\n근처에 있어요"} />
-        <Choice icon="account-group" text={"혼자 귀가하기\n무서워요"} />
+    <Canvas fluid>
+      <View style={[s.personaFluidFrame, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <Pressable
+          style={[s.personaArrow, { top: topButtonTop, left: layoutWidth * (18 / W) }]}
+          onPress={() => go("home")}
+        >
+          <MaterialCommunityIcons name="chevron-left" size={46 * typeScale} color="#FFFFFF" />
+        </Pressable>
+        <View style={[s.personaDotsFluid, { top: layoutHeight * (65 / H), gap: layoutWidth * (11 / W) }]}>
+          {[0, 1, 2].map((n) => (
+            <View
+              key={n}
+              style={[
+                s.personaDotFluid,
+                {
+                  width: n === 0 ? layoutWidth * (10 / W) : layoutWidth * (6 / W),
+                  height: n === 0 ? layoutWidth * (10 / W) : layoutWidth * (6 / W),
+                  borderRadius: n === 0 ? layoutWidth * (5 / W) : layoutWidth * (3 / W),
+                  backgroundColor: n === 0 ? A : "#D9D9D9",
+                },
+              ]}
+            />
+          ))}
+        </View>
+        <Pressable
+          style={[s.personaArrow, { top: topButtonTop, right: layoutWidth * (18 / W) }]}
+          onPress={() => go("personaPeople")}
+        >
+          <MaterialCommunityIcons name="chevron-right" size={46 * typeScale} color="#FFFFFF" />
+        </Pressable>
+
+        <Text
+          style={[
+            s.personaTitleFluid,
+            {
+              top: layoutHeight * (145 / H),
+              fontSize: 16 * typeScale,
+              lineHeight: 24 * typeScale,
+            },
+          ]}
+        >
+          어떤 상황에서 안심 통화를 사용하시나요?
+        </Text>
+
+        <View
+          style={[
+            s.personaChoiceGridFluid,
+            {
+              top: layoutHeight * (233 / H),
+              width: contentWidth,
+              columnGap: choiceGap,
+              rowGap: layoutWidth * (28 / W),
+            },
+          ]}
+        >
+          {choices.map((choice, index) => (
+            <Pressable
+              key={choice.text}
+              style={[s.personaChoiceFluid, { width: choiceColumnWidth }]}
+              onPress={() => setSelected(index)}
+            >
+              <View
+                style={[
+                  s.personaChoiceCircleFluid,
+                  {
+                    width: choiceSize,
+                    height: choiceSize,
+                    borderRadius: choiceSize / 2,
+                    backgroundColor: selected === index ? A : "#FFFFFF",
+                  },
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name={choice.icon}
+                  size={68 * typeScale}
+                  color={selected === index ? "#FFFFFF" : A}
+                />
+              </View>
+              <Text
+                style={[
+                  s.personaChoiceTextFluid,
+                  {
+                    marginTop: layoutWidth * (10 / W),
+                    fontSize: 13 * typeScale,
+                    lineHeight: 18 * typeScale,
+                  },
+                ]}
+              >
+                {choice.text}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <Pressable
+          style={[
+            s.personaNextFluid,
+            {
+              width: contentWidth,
+              height: nextHeight,
+              borderRadius: layoutWidth * (20 / W),
+              bottom: layoutWidth * (57 / W),
+            },
+          ]}
+          onPress={() => go("personaPeople")}
+        >
+          <Text style={[s.personaNextTextFluid, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+            다음
+          </Text>
+        </Pressable>
+        <View style={[s.personaBottomPeekFluid, { height: layoutWidth * (48 / W) }]}>
+          <View
+            style={[
+              s.personaPeekHandleFluid,
+              {
+                marginTop: layoutWidth * (16 / W),
+                width: layoutWidth * (35 / W),
+                height: layoutWidth * (6 / W),
+                borderRadius: layoutWidth * (20 / W),
+              },
+            ]}
+          />
+        </View>
       </View>
-      <BottomPeek />
-      <Bottom label="다음" onPress={() => go("personaPeople")} withPeek />
     </Canvas>
   );
 }
@@ -2167,6 +2304,88 @@ const s = StyleSheet.create({
     fontFamily: INTER,
     color: "#7A8BFB",
     fontWeight: "900",
+  },
+  personaFluidFrame: {
+    alignSelf: "center",
+    height: "100%",
+    position: "relative",
+    overflow: "hidden",
+    backgroundColor: "#000",
+  },
+  personaArrow: {
+    position: "absolute",
+    zIndex: 3,
+  },
+  personaDotsFluid: {
+    position: "absolute",
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    zIndex: 3,
+  },
+  personaDotFluid: {
+    backgroundColor: "#D9D9D9",
+  },
+  personaTitleFluid: {
+    position: "absolute",
+    left: 10,
+    right: 10,
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "500",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  personaChoiceGridFluid: {
+    position: "absolute",
+    alignSelf: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  personaChoiceFluid: {
+    alignItems: "center",
+  },
+  personaChoiceCircleFluid: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  personaChoiceTextFluid: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "500",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  personaNextFluid: {
+    position: "absolute",
+    alignSelf: "center",
+    backgroundColor: A,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    zIndex: 4,
+  },
+  personaNextTextFluid: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    includeFontPadding: false,
+  },
+  personaBottomPeekFluid: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderTopLeftRadius: 44,
+    borderTopRightRadius: 44,
+    borderWidth: 2,
+    borderColor: "#465670",
+    backgroundColor: CARD,
+    zIndex: 1,
+  },
+  personaPeekHandleFluid: {
+    alignSelf: "center",
+    backgroundColor: "#606A80",
   },
   loginScreen: {
     flex: 1,
