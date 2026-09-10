@@ -1049,17 +1049,147 @@ function PersonaUse({ go }: { go: (screen: Screen) => void }) {
 }
 
 function PersonaPeople({ go }: { go: (screen: Screen) => void }) {
+  const [selected, setSelected] = useState(0);
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const topButtonTop = layoutHeight * (53 / H);
+  const contentWidth = layoutWidth * (362 / W);
+  const personSize = layoutWidth * (100 / W);
+  const personGap = layoutWidth * (24 / W);
+  const nextHeight = contentWidth * (56 / 362);
+
+  const people = [
+    { img: asset.father, label: "아빠" },
+    { img: asset.mother, label: "엄마" },
+    { img: asset.friend, label: "친구" },
+  ];
+
   return (
-    <Canvas>
-      <Pager active={1} />
-      <Text style={s.personaTitle}>통화하고 싶은 가상의 인물을 선택해주세요.</Text>
-      <View style={s.peopleRow}>
-        <Person img={asset.father} label="아빠" selected />
-        <Person img={asset.mother} label="엄마" />
-        <Person img={asset.friend} label="친구" />
+    <Canvas fluid>
+      <View style={[s.personaFluidFrame, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <Pressable
+          style={[s.personaArrow, { top: topButtonTop, left: layoutWidth * (18 / W) }]}
+          onPress={() => go("personaUse")}
+        >
+          <MaterialCommunityIcons name="chevron-left" size={46 * typeScale} color="#FFFFFF" />
+        </Pressable>
+        <View style={[s.personaDotsFluid, { top: layoutHeight * (65 / H), gap: layoutWidth * (11 / W) }]}>
+          {[0, 1, 2].map((n) => (
+            <View
+              key={n}
+              style={[
+                s.personaDotFluid,
+                {
+                  width: n === 1 ? layoutWidth * (10 / W) : layoutWidth * (6 / W),
+                  height: n === 1 ? layoutWidth * (10 / W) : layoutWidth * (6 / W),
+                  borderRadius: n === 1 ? layoutWidth * (5 / W) : layoutWidth * (3 / W),
+                  backgroundColor: n === 1 ? A : "#D9D9D9",
+                },
+              ]}
+            />
+          ))}
+        </View>
+        <Pressable
+          style={[s.personaArrow, { top: topButtonTop, right: layoutWidth * (18 / W) }]}
+          onPress={() => go("voiceCheck")}
+        >
+          <MaterialCommunityIcons name="chevron-right" size={46 * typeScale} color="#FFFFFF" />
+        </Pressable>
+
+        <Text
+          style={[
+            s.personaTitleFluid,
+            {
+              top: layoutHeight * (145 / H),
+              fontSize: 16 * typeScale,
+              lineHeight: 24 * typeScale,
+            },
+          ]}
+        >
+          통화하고 싶은 가상의 인물을 선택해주세요.
+        </Text>
+
+        <View
+          style={[
+            s.personaChoiceGridFluid,
+            {
+              top: layoutHeight * (233 / H),
+              width: contentWidth,
+              gap: personGap,
+            },
+          ]}
+        >
+          {people.map((person, index) => (
+            <Pressable
+              key={person.label}
+              style={[s.personaChoiceFluid, { width: personSize }]}
+              onPress={() => setSelected(index)}
+            >
+              <Image
+                source={person.img}
+                style={[
+                  s.personaPersonImageFluid,
+                  {
+                    width: personSize,
+                    height: personSize,
+                    borderRadius: personSize / 2,
+                    borderWidth: selected === index ? layoutWidth * (6 / W) : 0,
+                  },
+                ]}
+              />
+              <Text
+                style={[
+                  s.personaPersonLabelFluid,
+                  {
+                    marginTop: layoutWidth * (9 / W),
+                    fontSize: 13 * typeScale,
+                    lineHeight: 18 * typeScale,
+                  },
+                ]}
+              >
+                {person.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <Pressable
+          style={[
+            s.personaNextFluid,
+            {
+              width: contentWidth,
+              height: nextHeight,
+              borderRadius: layoutWidth * (20 / W),
+              bottom: layoutWidth * (57 / W),
+            },
+          ]}
+          onPress={() => go("voiceCheck")}
+        >
+          <Text style={[s.personaNextTextFluid, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+            다음
+          </Text>
+        </Pressable>
+        <View style={[s.personaBottomPeekFluid, { height: layoutWidth * (48 / W) }]}>
+          <View
+            style={[
+              s.personaPeekHandleFluid,
+              {
+                marginTop: layoutWidth * (16 / W),
+                width: layoutWidth * (35 / W),
+                height: layoutWidth * (6 / W),
+                borderRadius: layoutWidth * (20 / W),
+              },
+            ]}
+          />
+        </View>
       </View>
-      <BottomPeek />
-      <Bottom label="다음" onPress={() => go("voiceCheck")} withPeek />
     </Canvas>
   );
 }
@@ -2350,6 +2480,16 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   personaChoiceTextFluid: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "500",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  personaPersonImageFluid: {
+    borderColor: A,
+  },
+  personaPersonLabelFluid: {
     fontFamily: INTER,
     color: "#FFFFFF",
     fontWeight: "500",
