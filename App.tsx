@@ -337,6 +337,8 @@ function Contacts({ go, modal, edit }: { go: (screen: Screen) => void; modal?: b
   const cardHeight = contentWidth * (80 / 362);
   const buttonHeight = contentWidth * (56 / 362);
   const plusSize = layoutWidth * (42 / W);
+  const modalWidth = layoutWidth * (336 / W);
+  const modalHeight = modalWidth * (410 / 336);
 
   if (!edit) {
     return (
@@ -360,7 +362,7 @@ function Contacts({ go, modal, edit }: { go: (screen: Screen) => void; modal?: b
                 style={[
                   s.contactTitle,
                   {
-                    fontSize: 26 * typeScale,
+                    fontSize: 23 * typeScale,
                     lineHeight: 34 * typeScale,
                   },
                 ]}
@@ -447,7 +449,12 @@ function Contacts({ go, modal, edit }: { go: (screen: Screen) => void; modal?: b
         </ScrollView>
         {modal && (
           <View style={s.modalLayer}>
-            <ContactModal go={go} />
+            <ContactModal
+              go={go}
+              width={modalWidth}
+              height={modalHeight}
+              typeScale={typeScale}
+            />
           </View>
         )}
       </Canvas>
@@ -466,7 +473,7 @@ function Contacts({ go, modal, edit }: { go: (screen: Screen) => void; modal?: b
       {!edit && <Bottom label="다음" onPress={() => go("terms")} disabled={modal} />}
       {modal && (
         <View style={s.modalLayer}>
-          <ContactModal go={go} />
+          <ContactModal go={go} width={336} height={410} typeScale={1} />
         </View>
       )}
     </Canvas>
@@ -1001,30 +1008,127 @@ function ContactCard({
   );
 }
 
-function ContactModal({ go }: { go: (screen: Screen) => void }) {
+function ContactModal({
+  go,
+  width,
+  height,
+  typeScale,
+}: {
+  go: (screen: Screen) => void;
+  width: number;
+  height: number;
+  typeScale: number;
+}) {
+  const horizontalPadding = width * (36 / 336);
+  const buttonHorizontalPadding = width * (28 / 336);
+  const fieldGap = height * (30 / 410);
+  const buttonHeight = height * (35 / 410);
+  const buttonGap = width * (5 / 336);
+  const buttonWidth = (width - buttonHorizontalPadding * 2 - buttonGap) / 2;
+  const buttonRadius = width * (12 / 336);
+
   return (
-    <View style={s.contactModal}>
-      <View style={s.modalMenu}>
-        <MaterialCommunityIcons name="dots-vertical" size={27} color="#fff" />
+    <View
+      style={[
+        s.contactModal,
+        {
+          width,
+          minWidth: MIN_SCREEN_WIDTH * (336 / W),
+          height,
+          borderRadius: width * (29 / 336),
+          paddingTop: height * (48 / 410),
+          paddingBottom: height * (23 / 410),
+        },
+      ]}
+    >
+      <View
+        style={[
+          s.modalMenuRow,
+          {
+            top: height * (27 / 410),
+            right: width * (22 / 336),
+          },
+        ]}
+      >
+        <View
+          style={[
+            s.modalMenu,
+            {
+              width: width * (35 / 336),
+              height: width * (35 / 336),
+              borderRadius: width * (18 / 336),
+            },
+          ]}
+        >
+          <MaterialCommunityIcons name="dots-vertical" size={27 * typeScale} color="#fff" />
+        </View>
       </View>
-      <ModalField label="이름" value="보호자 2" top={42} />
-      <ModalField label="관계" value="어머니" top={134} />
-      <ModalField label="전화번호" value="010-0000-0000" top={226} error="전화번호의 형식이 올바르지 않습니다." />
-      <View style={s.modalBtns}>
-        <MiniButton label="취소" dark onPress={() => go("contacts")} />
-        <MiniButton label="추가" onPress={() => go("contacts")} />
+      <View style={[s.modalFieldStack, { paddingHorizontal: horizontalPadding }]}>
+        <ModalField label="이름" value="보호자 2" typeScale={typeScale} />
+        <ModalField label="관계" value="어머니" typeScale={typeScale} marginTop={fieldGap} />
+        <ModalField
+          label="전화번호"
+          value="010-0000-0000"
+          typeScale={typeScale}
+          marginTop={fieldGap}
+          error="전화번호의 형식이 올바르지 않습니다."
+        />
+      </View>
+      <View style={[s.modalBtns, { gap: buttonGap, paddingHorizontal: buttonHorizontalPadding }]}>
+        <Pressable
+          style={[
+            s.contactModalButton,
+            s.contactModalButtonCancel,
+            {
+              width: buttonWidth,
+              height: buttonHeight,
+              borderRadius: buttonRadius,
+            },
+          ]}
+          onPress={() => go("contacts")}
+        >
+          <Text style={[s.modalButtonText, { fontSize: 12 * typeScale, lineHeight: 18 * typeScale }]}>취소</Text>
+        </Pressable>
+        <Pressable
+          style={[
+            s.contactModalButton,
+            s.contactModalButtonAdd,
+            {
+              width: buttonWidth,
+              height: buttonHeight,
+              borderRadius: buttonRadius,
+            },
+          ]}
+          onPress={() => go("contacts")}
+        >
+          <Text style={[s.modalButtonText, { fontSize: 12 * typeScale, lineHeight: 18 * typeScale }]}>추가</Text>
+        </Pressable>
       </View>
     </View>
   );
 }
 
-function ModalField({ label, value, error, top }: { label: string; value: string; error?: string; top: number }) {
+function ModalField({
+  label,
+  value,
+  error,
+  marginTop = 0,
+  typeScale,
+}: {
+  label: string;
+  value: string;
+  error?: string;
+  marginTop?: number;
+  typeScale: number;
+}) {
   return (
-    <View style={[s.modalField, { top }]}>
-      <Text style={s.modalLabel}>{label}</Text>
-      <Text style={s.modalValue}>{value}</Text>
+    <View style={[s.modalField, { marginTop }]}>
+      <Text style={[s.modalLabel, { fontSize: 13 * typeScale, lineHeight: 19.5 * typeScale }]}>{label}</Text>
+      <Text style={[s.modalValue, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+        {value}
+      </Text>
       <View style={s.line} />
-      {error && <Text style={s.error}>{error}</Text>}
+      {error && <Text style={[s.error, { fontSize: 10 * typeScale, lineHeight: 15 * typeScale }]}>{error}</Text>}
     </View>
   );
 }
@@ -1737,43 +1841,42 @@ const s = StyleSheet.create({
   modalLayer: {
     ...fill,
     alignItems: "center",
+    justifyContent: "center",
+    zIndex: 20,
   },
   contactModal: {
-    position: "absolute",
-    top: 234,
-    left: 32,
-    width: 336,
-    height: 410,
-    borderRadius: 29,
+    position: "relative",
     backgroundColor: CARD,
   },
-  modalMenu: {
+  modalMenuRow: {
     position: "absolute",
-    top: 19,
-    right: 19,
-    width: 35,
-    height: 35,
-    borderRadius: 18,
+    alignItems: "flex-end",
+    zIndex: 2,
+  },
+  modalMenu: {
     backgroundColor: "#445064",
     alignItems: "center",
     justifyContent: "center",
   },
   modalField: {
-    position: "absolute",
-    left: 31,
-    width: 275,
+    width: "100%",
+  },
+  modalFieldStack: {
+    width: "100%",
   },
   modalLabel: {
     fontFamily: INTER,
     color: "#fff",
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "600",
   },
   modalValue: {
     fontFamily: INTER,
-    marginTop: 10,
+    marginTop: 6,
+    marginLeft: 5,
     color: MUTED,
-    fontSize: 22,
+    fontSize: 20,
+    fontWeight: "400",
   },
   error: {
     fontFamily: INTER,
@@ -1782,11 +1885,25 @@ const s = StyleSheet.create({
     fontSize: 10,
   },
   modalBtns: {
-    position: "absolute",
-    left: 21,
-    bottom: 20,
+    marginTop: "auto",
     flexDirection: "row",
-    gap: 5,
+  },
+  contactModalButton: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  contactModalButtonCancel: {
+    backgroundColor: "#445064",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
+  },
+  contactModalButtonAdd: {
+    backgroundColor: A,
+  },
+  modalButtonText: {
+    fontFamily: INTER,
+    color: "#fff",
+    fontWeight: "400",
   },
   top: {
     position: "absolute",
