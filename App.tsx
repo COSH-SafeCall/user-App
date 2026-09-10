@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import {
   Image,
   ImageBackground,
-  PanResponder,
   Pressable,
   ScrollView,
   StatusBar,
@@ -1088,47 +1087,171 @@ function VoiceLoading({ go }: { go: (screen: Screen) => void }) {
 
 function Home({ go }: { go: (screen: Screen) => void }) {
   const [drawerOpen, setDrawerOpen] = useState(true);
-  const miniDrawerPan = React.useMemo(() => PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dy) > 8,
-    onPanResponderRelease: (_, gesture) => { if (gesture.dy < -18) setDrawerOpen(true); }
-  }), []);
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const topButtonSize = layoutWidth * (40 / W);
+  const callSize = layoutWidth * (220 / W);
+  const sheetHeight = layoutWidth * (209 / W);
+  const collapsedSheetHeight = layoutWidth * (48 / W);
 
   return (
-    <Canvas>
-      {drawerOpen && <Pressable style={s.homeOutsideClose} onPress={() => setDrawerOpen(false)} />}
-      <Pressable style={design.homeGear} onPress={() => go("setting")}>
-        <Image source={require("./assets/figma/home-imgCogOutline.png")} style={{ width: 30, height: 30 }} />
-      </Pressable>
-      <Pressable style={design.homeHelp} onPress={() => go("help")}>
-        <Image source={require("./assets/figma/home-imgHelp.png")} style={{ width: 24, height: 24 }} />
-      </Pressable>
+    <Canvas fluid>
+      <View style={[s.homeFrame, { width: layoutWidth, minHeight: layoutHeight }]}>
+        {drawerOpen && (
+          <Pressable
+            style={[s.homeOutsideClose, { bottom: sheetHeight }]}
+            onPress={() => setDrawerOpen(false)}
+          />
+        )}
+        <Pressable
+          style={[
+            s.homeIconButton,
+            {
+              top: layoutHeight * (33 / H),
+              left: layoutWidth * (30 / W),
+              width: topButtonSize,
+              height: topButtonSize,
+              borderRadius: topButtonSize / 2,
+            },
+          ]}
+          onPress={() => go("setting")}
+        >
+          <MaterialCommunityIcons name="cog-outline" size={30 * typeScale} color="#000" />
+        </Pressable>
+        <Pressable
+          style={[
+            s.homeIconButton,
+            {
+              top: layoutHeight * (33 / H),
+              right: layoutWidth * (30 / W),
+              width: topButtonSize,
+              height: topButtonSize,
+              borderRadius: topButtonSize / 2,
+            },
+          ]}
+          onPress={() => go("help")}
+        >
+          <Text style={[s.homeHelpText, { fontSize: 30 * typeScale, lineHeight: 36 * typeScale }]}>?</Text>
+        </Pressable>
 
-      <Text style={design.homeTitle}>눌러서 AI 안심통화를 시작하세요</Text>
-      <Text style={design.homeSub}>가상 통화는 실제 신고나 구조를 대신하지 않습니다.</Text>
-
-      <Pressable style={design.sosCircle} onPress={() => go("personaUse")}>
-        <Image source={require("./assets/figma/home-imgFrame1.png")} style={{ width: 220, height: 220 }} />
-      </Pressable>
-
-      <Text style={design.homeNotice}>
-        긴급 메세지 기능이 <Text style={design.available}>사용 가능</Text>합니다.{"\n"}
-        긴급 메세지 위치 전송이 <Text style={design.warnInline}>사용 불가</Text>합니다.
-      </Text>
-
-      {drawerOpen ? (
-        <View style={design.homeInfo}>
-          <View style={design.homeHandle} />
-          <Text style={design.homeInfoText}>
-            전원 버튼을 5번 연속으로 눌러 <Text style={design.blueBold}>긴급 호출 기능</Text>을 실행시킬 수 있습니다.{"\n\n"}
-            하단 볼륨 버튼을 3초 이상 눌러 <Text style={design.blueBold}>긴급 문자 보내기 기능</Text>을 실행시킬 수 있습니다.{"\n\n"}
-            긴급 호출 기능(긴급 SOS 기능)은 SafeCall 과 별개로 항상 작동되니 실수로 실행시키지 않도록 주의해 주십시오. 긴급 문자 보내기 기능은 앱 실행중에만 실행 가능합니다.
+        <View
+          style={[
+            s.homeHeaderTextWrap,
+            {
+              top: layoutHeight * (183 / H),
+              width: layoutWidth * (320 / W),
+            },
+          ]}
+        >
+          <Text style={[s.homeTitleFluid, { fontSize: 20 * typeScale, lineHeight: 24 * typeScale }]}>
+            눌러서 AI 안심통화를 시작하세요
+          </Text>
+          <Text style={[s.homeWarningFluid, { fontSize: 13 * typeScale, lineHeight: 16 * typeScale }]}>
+            가상 통화는 실제 신고나 구조를 대신하지 않습니다.
           </Text>
         </View>
-      ) : (
-        <Pressable style={design.homeMiniDrawer} onPress={() => setDrawerOpen(true)} {...miniDrawerPan.panHandlers}>
-          <View style={design.peekHandle} />
+
+        <Pressable
+          style={[
+            s.homeCallButton,
+            {
+              top: layoutHeight * (312 / H),
+              width: callSize,
+              height: callSize,
+            },
+          ]}
+          onPress={() => go("personaUse")}
+        >
+          <Image source={require("./assets/figma/home-imgFrame1.png")} style={{ width: callSize, height: callSize }} />
         </Pressable>
-      )}
+
+        <Text
+          style={[
+            s.homeNoticeFluid,
+            {
+              top: layoutHeight * (611 / H),
+              width: layoutWidth * (250 / W),
+              fontSize: 11 * typeScale,
+              lineHeight: 16.5 * typeScale,
+            },
+          ]}
+        >
+          긴급 메세지 기능이 <Text style={design.available}>사용 가능</Text>합니다.{"\n"}
+          긴급 메세지 위치 전송이 <Text style={design.warnInline}>사용 불가</Text>합니다.
+        </Text>
+
+        {drawerOpen ? (
+          <View
+            style={[
+              s.homeInfoSheet,
+              {
+                height: sheetHeight,
+                borderTopLeftRadius: layoutWidth * (60 / W),
+                borderTopRightRadius: layoutWidth * (60 / W),
+              },
+            ]}
+          >
+            <Pressable style={s.homeSheetHandlePress} onPress={() => setDrawerOpen(false)}>
+              <View
+                style={[
+                  s.homeSheetHandle,
+                  {
+                    width: layoutWidth * (35 / W),
+                    height: layoutWidth * (6 / W),
+                    borderRadius: layoutWidth * (20 / W),
+                  },
+                ]}
+              />
+            </Pressable>
+            <Text
+              style={[
+                s.homeInfoTextFluid,
+                {
+                  marginTop: layoutWidth * (39.5 / W),
+                  paddingHorizontal: layoutWidth * (30 / W),
+                  fontSize: 13 * typeScale,
+                  lineHeight: 16 * typeScale,
+                },
+              ]}
+            >
+              전원 버튼을 5번 연속으로 눌러 <Text style={s.homeInfoAccent}>긴급 호출 기능</Text>을 실행시킬 수 있습니다.{"\n\n"}
+              하단 볼륨 버튼을 3초 이상 눌러 <Text style={s.homeInfoAccent}>긴급 문자 보내기 기능</Text>을 실행시킬 수 있습니다.{"\n\n"}
+              긴급 호출 기능(긴급 SOS 기능)은 SafeCall 과 별개로 항상 작동되니 실수로 실행시키지 않도록 주의해 주십시오. 긴급 문자 보내기 기능은 앱 실행중에만 실행 가능합니다.
+            </Text>
+          </View>
+        ) : (
+          <Pressable
+            style={[
+              s.homeInfoSheet,
+              {
+                height: collapsedSheetHeight,
+                borderTopLeftRadius: layoutWidth * (60 / W),
+                borderTopRightRadius: layoutWidth * (60 / W),
+              },
+            ]}
+            onPress={() => setDrawerOpen(true)}
+          >
+            <View
+              style={[
+                s.homeSheetHandle,
+                {
+                  marginTop: layoutWidth * (16 / W),
+                  width: layoutWidth * (35 / W),
+                  height: layoutWidth * (6 / W),
+                  borderRadius: layoutWidth * (20 / W),
+                },
+              ]}
+            />
+          </Pressable>
+        )}
+      </View>
     </Canvas>
   );
 }
@@ -2064,6 +2187,99 @@ const s = StyleSheet.create({
     color: A,
     fontWeight: "400",
   },
+  homeFrame: {
+    alignSelf: "center",
+    height: "100%",
+    position: "relative",
+    overflow: "hidden",
+    backgroundColor: "#000",
+  },
+  homeIconButton: {
+    position: "absolute",
+    backgroundColor: "#989EC9",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 3,
+  },
+  homeHelpText: {
+    fontFamily: INTER,
+    color: "#000",
+    fontWeight: "700",
+    includeFontPadding: false,
+    textAlign: "center",
+  },
+  homeHeaderTextWrap: {
+    position: "absolute",
+    alignSelf: "center",
+    alignItems: "center",
+    zIndex: 2,
+  },
+  homeTitleFluid: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  homeWarningFluid: {
+    fontFamily: INTER,
+    color: Y,
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+    marginTop: 10,
+  },
+  homeCallButton: {
+    position: "absolute",
+    alignSelf: "center",
+    zIndex: 2,
+  },
+  homeNoticeFluid: {
+    position: "absolute",
+    alignSelf: "center",
+    fontFamily: INTER,
+    color: "#CACACA",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+    zIndex: 2,
+  },
+  homeInfoSheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderWidth: 2,
+    borderColor: "#455269",
+    backgroundColor: "#1E293B",
+    overflow: "hidden",
+    zIndex: 4,
+  },
+  homeSheetHandlePress: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2,
+  },
+  homeSheetHandle: {
+    alignSelf: "center",
+    backgroundColor: "#606A80",
+  },
+  homeInfoTextFluid: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    includeFontPadding: false,
+  },
+  homeInfoAccent: {
+    fontFamily: INTER,
+    color: "#7A8BFB",
+    fontWeight: "900",
+  },
   loginScreen: {
     flex: 1,
     width: "100%",
@@ -2998,7 +3214,7 @@ const s = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    bottom: 209,
+    zIndex: 1,
   },
   helpList: {
     position: "absolute",
