@@ -25,8 +25,8 @@ type Screen =
   | "editProfile" | "editContacts" | "soundSetting" | "permissionSetting";
 
 const order: Screen[] = [
-  "login", "kakao", "profile", "contacts", "contactModal", "terms", "permissionBasic",
-  "callPermission", "permissionSos", "sosSystem", "permissionToast", "complete",
+  "login", "kakao", "permissionToast", "profile", "contacts", "contactModal", "terms",
+  "permissionBasic", "callPermission", "permissionSos", "sosSystem", "complete",
   "locationGuide", "home", "personaUse", "personaPeople", "voiceCheck", "voiceLoading",
   "callRinging", "call", "help", "helpOpen", "setting", "settingDialog", "withdraw", "editProfile",
   "editContacts", "soundSetting", "permissionSetting",
@@ -72,16 +72,16 @@ export default function App() {
 
       {/* 라우팅 분기 */}
       {screen === "login" && <Login go={go} />}
-      {screen === "kakao" && <ImageScreen src={asset.kakao} onPress={() => go("profile")} />}
+      {screen === "kakao" && <ImageScreen src={asset.kakao} onPress={() => go("permissionToast")} />}
       {screen === "profile" && <Profile go={go} />}
       {screen === "contacts" && <Contacts go={go} />}
       {screen === "contactModal" && <Contacts go={go} modal />}
       {screen === "terms" && <Terms go={go} />}
       {screen === "permissionBasic" && <PermissionIntro go={go} sos={false} />}
       {screen === "permissionSos" && <PermissionIntro go={go} sos />}
-      {screen === "sosSystem" && <ImageScreen src={asset.sosSystem} onPress={() => go("permissionToast")} />}
+      {screen === "sosSystem" && <ImageScreen src={asset.sosSystem} onPress={() => go("complete")} />}
       {screen === "callPermission" && <ImageScreen src={asset.callPermission} onPress={() => go("permissionSos")} />}
-      {screen === "permissionToast" && <ImageScreen src={asset.permissionToast} onPress={() => go("complete")} />}
+      {screen === "permissionToast" && <ImageScreen src={asset.permissionToast} onPress={() => go("profile")} />}
       {screen === "locationGuide" && <LocationGuide go={go} />}
       {screen === "complete" && <Complete go={go} />}
       {screen === "personaUse" && <PersonaUse go={go} />}
