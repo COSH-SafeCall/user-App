@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+﻿import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   Image,
@@ -20,14 +20,14 @@ type IconName = React.ComponentProps<typeof MaterialCommunityIcons>["name"];
 type Screen =
   | "login" | "kakao" | "profile" | "contacts" | "contactModal" | "terms"
   | "permissionBasic" | "permissionSos" | "sosSystem" | "callPermission" | "permissionToast"
-  | "complete" | "personaUse" | "personaPeople" | "voiceCheck" | "voiceLoading"
+  | "complete" | "personaUse" | "personaPeople" | "callSetupCheck" | "voiceLoading"
   | "home" | "help" | "helpOpen" | "callRinging" | "call" | "setting" | "settingDialog" | "withdraw"
   | "editProfile" | "editContacts" | "soundSetting" | "permissionSetting";
 
 const order: Screen[] = [
   "login", "kakao", "permissionToast", "profile", "contacts", "contactModal", "terms",
   "permissionBasic", "callPermission", "permissionSos", "sosSystem", "complete",
-  "home", "personaUse", "personaPeople", "voiceCheck", "voiceLoading",
+  "home", "personaUse", "personaPeople", "callSetupCheck", "voiceLoading",
   "callRinging", "call", "help", "helpOpen", "setting", "settingDialog", "withdraw", "editProfile",
   "editContacts", "soundSetting", "permissionSetting",
 ];
@@ -84,7 +84,7 @@ export default function App() {
       {screen === "complete" && <Complete go={go} />}
       {screen === "personaUse" && <PersonaUse go={go} />}
       {screen === "personaPeople" && <PersonaPeople go={go} />}
-      {screen === "voiceCheck" && <VoiceCheck go={go} />}
+      {screen === "callSetupCheck" && <CallSetupCheck go={go} />}
       {screen === "voiceLoading" && <VoiceLoading go={go} />}
       {screen === "home" && <Home go={go} />}
       {screen === "help" && <Help go={go} />}
@@ -1098,7 +1098,7 @@ function PersonaPeople({ go }: { go: (screen: Screen) => void }) {
         </View>
         <Pressable
           style={[s.personaArrow, { top: topButtonTop, right: layoutWidth * (18 / W) }]}
-          onPress={() => go("voiceCheck")}
+          onPress={() => go("callSetupCheck")}
         >
           <MaterialCommunityIcons name="chevron-right" size={46 * typeScale} color="#FFFFFF" />
         </Pressable>
@@ -1170,7 +1170,7 @@ function PersonaPeople({ go }: { go: (screen: Screen) => void }) {
               bottom: layoutWidth * (57 / W),
             },
           ]}
-          onPress={() => go("voiceCheck")}
+          onPress={() => go("callSetupCheck")}
         >
           <Text style={[s.personaNextTextFluid, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
             다음
@@ -1194,27 +1194,83 @@ function PersonaPeople({ go }: { go: (screen: Screen) => void }) {
   );
 }
 
-function VoiceCheck({ go }: { go: (screen: Screen) => void }) {
+function CallSetupCheck({ go }: { go: (screen: Screen) => void }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const contentWidth = layoutWidth * (382 / W);
+  const iconSize = layoutWidth * (64 / W);
+  const buttonHeight = contentWidth * (56 / 382);
+
   return (
-    <Canvas bg="#455269">
-      <Pressable style={s.voiceBack} onPress={() => go("personaPeople")}>
-        <Image source={require("./assets/figma/voice-imgChevronLeft.png")} style={{ width: 42, height: 42 }} />
-      </Pressable>
-      <Text style={design.voiceTitle}>모두 확인하셨나요?</Text>
-      <View style={design.speakers}>
-        <Image source={require("./assets/figma/voice-imgVolumeHigh.png")} style={{ width: 87.4568, height: 87.4568 }} />
-        <Image source={require("./assets/figma/voice-imgVolumeHigh1.png")} style={{ width: 90, height: 90 }} />
+    <Canvas fluid bg="#455269">
+      <View style={[s.callSetupFrame, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <View style={[s.callSetupTopBar, { paddingTop: layoutHeight * (43 / H), paddingHorizontal: layoutWidth * (22 / W) }]}>
+          <Pressable style={s.callSetupBack} onPress={() => go("personaPeople")}>
+            <MaterialCommunityIcons name="chevron-left" size={34 * typeScale} color="#FFFFFF" />
+          </Pressable>
+          <Text style={[s.callSetupTitle, { fontSize: 20 * typeScale, lineHeight: 24 * typeScale }]}>
+            모두 확인하셨나요?
+          </Text>
+          <View style={s.callSetupTopSpacer} />
+        </View>
+
+        <View style={[s.callSetupCheckRow, { width: layoutWidth * (292 / W), marginTop: layoutHeight * (292 / H) }]}>
+          <View style={s.callSetupCheckItem}>
+            <MaterialCommunityIcons name="wifi-off" size={iconSize} color="#D9DEE7" />
+            <Text style={[s.callSetupCaption, { marginTop: layoutWidth * (28 / W), fontSize: 12 * typeScale, lineHeight: 16 * typeScale }]}>
+              와이파이를 끄고 모바일{"\n"}데이터를 사용해주세요
+            </Text>
+          </View>
+          <View style={s.callSetupCheckItem}>
+            <MaterialCommunityIcons name="volume-high" size={iconSize} color="#D9DEE7" />
+            <Text style={[s.callSetupCaption, { marginTop: layoutWidth * (28 / W), fontSize: 12 * typeScale, lineHeight: 16 * typeScale }]}>
+              볼륨 4-5로 설정해주세요
+            </Text>
+          </View>
+        </View>
+
+        <View
+          style={[
+            s.callSetupNotice,
+            {
+              width: layoutWidth * (283 / W),
+              minHeight: layoutWidth * (72 / W),
+              borderRadius: layoutWidth * (35 / W),
+              paddingHorizontal: layoutWidth * (30 / W),
+              paddingVertical: layoutWidth * (18 / W),
+              bottom: layoutWidth * (94 / W),
+            },
+          ]}
+        >
+          <Text style={[s.callSetupNoticeText, { fontSize: 13 * typeScale, lineHeight: 16 * typeScale }]}>
+            화면을 나가거나 긴급 SOS 통화를 사용할 경우 AI 통화는 자동으로 종료됩니다.
+          </Text>
+        </View>
+
+        <Pressable
+          style={[
+            s.callSetupNext,
+            {
+              width: contentWidth,
+              height: buttonHeight,
+              borderRadius: layoutWidth * (20 / W),
+              bottom: layoutWidth * (10 / W),
+            },
+          ]}
+          onPress={() => go("voiceLoading")}
+        >
+          <Text style={[s.callSetupNextText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+            다음
+          </Text>
+        </Pressable>
       </View>
-      <View style={design.captionClip}>
-        <Text numberOfLines={1} style={design.voiceCaptionLeft}>와이파이를 끄고 모바일 데이터를 사용해주세요</Text>
-      </View>
-      <Text style={design.voiceCaptionRight}>볼륨 4-5로 설정해주세요</Text>
-      <View style={design.voiceBubble}>
-        <Text style={design.bubbleText}>화면을 나가거나 긴급 SOS 통화를 사용할 경우 AI 통화는 자동으로 종료됩니다.</Text>
-      </View>
-      <Pressable style={design.voiceNext} onPress={() => go("voiceLoading")}>
-        <Text style={s.bottomText}>다음</Text>
-      </Pressable>
     </Canvas>
   );
 }
@@ -2526,6 +2582,80 @@ const s = StyleSheet.create({
   personaPeekHandleFluid: {
     alignSelf: "center",
     backgroundColor: "#606A80",
+  },
+  callSetupFrame: {
+    alignSelf: "center",
+    height: "100%",
+    position: "relative",
+    overflow: "hidden",
+    backgroundColor: "#455269",
+  },
+  callSetupTopBar: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  callSetupBack: {
+    width: 42,
+    height: 42,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  callSetupTitle: {
+    flex: 1,
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callSetupTopSpacer: {
+    width: 42,
+    height: 42,
+  },
+  callSetupCheckRow: {
+    alignSelf: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  callSetupCheckItem: {
+    width: 130,
+    alignItems: "center",
+  },
+  callSetupCaption: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callSetupNotice: {
+    position: "absolute",
+    alignSelf: "center",
+    backgroundColor: "rgba(0,0,0,0.3)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  callSetupNoticeText: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callSetupNext: {
+    position: "absolute",
+    alignSelf: "center",
+    backgroundColor: A,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  callSetupNextText: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    includeFontPadding: false,
   },
   loginScreen: {
     flex: 1,
@@ -3925,5 +4055,6 @@ const s = StyleSheet.create({
     fontWeight: "400",
   },
 });
+
 
 
