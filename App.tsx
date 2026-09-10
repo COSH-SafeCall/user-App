@@ -26,7 +26,7 @@ type Screen =
 
 const order: Screen[] = [
   "login", "kakao", "profile", "contacts", "contactModal", "terms", "permissionBasic",
-  "permissionSos", "sosSystem", "callPermission", "permissionToast", "complete",
+  "callPermission", "permissionSos", "sosSystem", "permissionToast", "complete",
   "locationGuide", "home", "personaUse", "personaPeople", "voiceCheck", "voiceLoading",
   "callRinging", "call", "help", "helpOpen", "setting", "settingDialog", "withdraw", "editProfile",
   "editContacts", "soundSetting", "permissionSetting",
@@ -79,8 +79,8 @@ export default function App() {
       {screen === "terms" && <Terms go={go} />}
       {screen === "permissionBasic" && <PermissionIntro go={go} sos={false} />}
       {screen === "permissionSos" && <PermissionIntro go={go} sos />}
-      {screen === "sosSystem" && <ImageScreen src={asset.sosSystem} onPress={() => go("callPermission")} />}
-      {screen === "callPermission" && <ImageScreen src={asset.callPermission} onPress={() => go("permissionToast")} />}
+      {screen === "sosSystem" && <ImageScreen src={asset.sosSystem} onPress={() => go("permissionToast")} />}
+      {screen === "callPermission" && <ImageScreen src={asset.callPermission} onPress={() => go("permissionSos")} />}
       {screen === "permissionToast" && <ImageScreen src={asset.permissionToast} onPress={() => go("complete")} />}
       {screen === "locationGuide" && <LocationGuide go={go} />}
       {screen === "complete" && <Complete go={go} />}
@@ -760,7 +760,7 @@ function PermissionIntro({ go, sos }: { go: (screen: Screen) => void; sos: boole
               borderRadius: layoutWidth * (20 / W),
             },
           ]}
-          onPress={() => go("permissionSos")}
+          onPress={() => go("callPermission")}
         >
           <Text style={[s.bottomText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale, fontWeight: "400" }]}>
             다음
