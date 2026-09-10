@@ -20,14 +20,14 @@ type IconName = React.ComponentProps<typeof MaterialCommunityIcons>["name"];
 type Screen =
   | "login" | "kakao" | "profile" | "contacts" | "contactModal" | "terms"
   | "permissionBasic" | "permissionSos" | "sosSystem" | "callPermission" | "permissionToast"
-  | "locationGuide" | "complete" | "personaUse" | "personaPeople" | "voiceCheck" | "voiceLoading"
+  | "complete" | "personaUse" | "personaPeople" | "voiceCheck" | "voiceLoading"
   | "home" | "help" | "helpOpen" | "callRinging" | "call" | "setting" | "settingDialog" | "withdraw"
   | "editProfile" | "editContacts" | "soundSetting" | "permissionSetting";
 
 const order: Screen[] = [
   "login", "kakao", "permissionToast", "profile", "contacts", "contactModal", "terms",
   "permissionBasic", "callPermission", "permissionSos", "sosSystem", "complete",
-  "locationGuide", "home", "personaUse", "personaPeople", "voiceCheck", "voiceLoading",
+  "home", "personaUse", "personaPeople", "voiceCheck", "voiceLoading",
   "callRinging", "call", "help", "helpOpen", "setting", "settingDialog", "withdraw", "editProfile",
   "editContacts", "soundSetting", "permissionSetting",
 ];
@@ -81,7 +81,6 @@ export default function App() {
       {screen === "sosSystem" && <ImageScreen src={asset.sosSystem} onPress={() => go("complete")} />}
       {screen === "callPermission" && <ImageScreen src={asset.callPermission} onPress={() => go("permissionSos")} />}
       {screen === "permissionToast" && <Profile go={go} kakaoFailure />}
-      {screen === "locationGuide" && <LocationGuide go={go} />}
       {screen === "complete" && <Complete go={go} />}
       {screen === "personaUse" && <PersonaUse go={go} />}
       {screen === "personaPeople" && <PersonaPeople go={go} />}
@@ -801,117 +800,6 @@ function PermissionIntro({ go, sos }: { go: (screen: Screen) => void; sos: boole
   );
 }
 
-function LocationGuide({ go }: { go: (screen: Screen) => void }) {
-  const { width, height } = useWindowDimensions();
-  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
-  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
-  const layoutWidth = Math.max(
-    MIN_SCREEN_WIDTH,
-    Math.min(viewportWidth, viewportHeight * (W / H)),
-  );
-  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
-  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
-  const contentWidth = layoutWidth * (332 / W);
-  const buttonAreaWidth = layoutWidth * (362 / W);
-  const buttonGap = layoutWidth * (10 / W);
-  const buttonWidth = (buttonAreaWidth - buttonGap) / 2;
-  const buttonHeight = buttonAreaWidth * (56 / 362);
-
-  const text = [
-    "하단 볼륨 버튼을 3초 이상 눌러 긴급 메시지 전송 기능을 사용할 수 있습니다.",
-    "전송이 정상적으로 이뤄지고 나면 사용자에게도 긴급 메시지 발송 성공 메시지가 도착합니다.",
-    "안심 통화 중에는 진동으로 메시지 발송 여부를 알려줍니다.",
-    "긴 진동이 울렸다면 전송 오류로 인하여 메시지가 제대로 전송되지 않았다는 의미입니다. 이 경우 다시 볼륨 버튼을 눌러 메시지를 재전송해주세요.",
-    "짧은 진동이 2번 울렸다면 메시지가 잘 전달된 것입니다."
-  ];
-  return (
-    <Canvas fluid bg={A}>
-      <ImageBackground source={asset.completeGradient} style={s.completeFluidBg} resizeMode="cover">
-        <ScrollView
-        style={s.locationScroll}
-        contentContainerStyle={[
-          s.locationScrollContent,
-          {
-            minHeight: layoutHeight,
-            paddingTop: layoutWidth * (110 / W),
-            paddingBottom: layoutWidth * (20 / W),
-          },
-        ]}
-        showsVerticalScrollIndicator={false}
-        bounces={false}
-      >
-        <Text
-          style={[
-            s.locationTitle,
-            {
-              fontSize: 23 * typeScale,
-              lineHeight: 34 * typeScale,
-            },
-          ]}
-        >
-          내 위치를 보호자에게 알려보세요.
-        </Text>
-
-        <View style={[s.locationBubbleStack, { marginTop: layoutWidth * (72 / W), gap: layoutWidth * (18 / W) }]}>
-          {text.map((v) => (
-            <Text
-              key={v}
-              style={[
-                s.locationBubble,
-                {
-                  width: contentWidth,
-                  minHeight: layoutWidth * (72 / W),
-                  borderRadius: layoutWidth * (35 / W),
-                  paddingHorizontal: layoutWidth * (30 / W),
-                  paddingVertical: layoutWidth * (18 / W),
-                  fontSize: 14 * typeScale,
-                  lineHeight: 20 * typeScale,
-                },
-              ]}
-            >
-              {v}
-            </Text>
-          ))}
-        </View>
-
-        <View style={[s.completeButtonRow, { width: buttonAreaWidth, height: buttonHeight, gap: buttonGap }]}>
-          <Pressable
-            style={[
-              s.completeSkip,
-              {
-                width: buttonWidth,
-                height: buttonHeight,
-                borderRadius: layoutWidth * (6 / W),
-              },
-            ]}
-            onPress={() => go("home")}
-          >
-            <Text style={[s.completeSkipText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
-              건너뛰기
-            </Text>
-          </Pressable>
-          <Pressable
-            style={[
-              s.completeOk,
-              {
-                width: buttonWidth,
-                height: buttonHeight,
-                borderRadius: layoutWidth * (6 / W),
-              },
-            ]}
-            onPress={() => go("home")}
-          >
-            <Text style={[s.completeOkText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
-              확인
-            </Text>
-          </Pressable>
-        </View>
-        </ScrollView>
-      </ImageBackground>
-    </Canvas>
-  );
-}
-
 function Complete({ go }: { go: (screen: Screen) => void }) {
   const { width, height } = useWindowDimensions();
   const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
@@ -978,7 +866,7 @@ function Complete({ go }: { go: (screen: Screen) => void }) {
                   borderRadius: layoutWidth * (6 / W),
                 },
               ]}
-              onPress={() => go("locationGuide")}
+              onPress={() => go("home")}
             >
               <Text style={[s.completeSkipText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
                 건너뛰기
@@ -993,7 +881,7 @@ function Complete({ go }: { go: (screen: Screen) => void }) {
                   borderRadius: layoutWidth * (6 / W),
                 },
               ]}
-              onPress={() => go("locationGuide")}
+              onPress={() => go("home")}
             >
               <Text style={[s.completeOkText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
                 확인
@@ -2855,44 +2743,6 @@ const s = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
   },
-  locationScroll: {
-    flex: 1,
-    width: "100%",
-  },
-  locationScrollContent: {
-    flexGrow: 1,
-    alignItems: "center",
-  },
-  locationTitle: {
-    fontFamily: INTER,
-    color: "#fff",
-    fontSize: 23,
-    lineHeight: 34,
-    fontWeight: "400",
-    textAlign: "center",
-  },
-  locationBubbleStack: {
-    alignItems: "center",
-  },
-  locationBubble: {
-    fontFamily: INTER,
-    minHeight: 72,
-    borderRadius: 35,
-    backgroundColor: "rgba(0,0,0,0.3)",
-    color: "#fff",
-    fontSize: 14,
-    lineHeight: 20,
-    paddingHorizontal: 30,
-    paddingVertical: 19,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 7,
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    elevation: 2,
-  },
   completeFluidBg: {
     flex: 1,
     width: "100%",
@@ -3716,3 +3566,5 @@ const s = StyleSheet.create({
     fontWeight: "400",
   },
 });
+
+
