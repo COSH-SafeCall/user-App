@@ -576,6 +576,21 @@ function Terms({ go }: { go: (screen: Screen) => void }) {
 }
 
 function PermissionIntro({ go, sos }: { go: (screen: Screen) => void; sos: boolean }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const buttonWidth = layoutWidth * (362 / W);
+  const buttonHeight = buttonWidth * (56 / 362);
+  const titleWidth = layoutWidth * (332 / W);
+  const contentWidth = layoutWidth * (332 / W);
+  const iconSize = layoutWidth * (48 / W);
+
   if (sos) {
     return (
       <Canvas>
@@ -596,23 +611,77 @@ function PermissionIntro({ go, sos }: { go: (screen: Screen) => void; sos: boole
   }
 
   return (
-    <Canvas>
-      <Text style={s.permTitleBasic}>SafeCall 이용을 위해 아래의{"\n"}권한을 허용해주세요.</Text>
-      <View style={[s.permCircle, { top: 212 }]}>
-        <MaterialCommunityIcons name="microphone" size={24} color="#fff" />
-      </View>
-      <View style={[s.permTextBlock, { top: 190 }]}>
-        <Text style={s.permStrong}>마이크</Text>
-        <Text style={s.permGray}>AI와 실시간 통화를 연동하고 통화 품질을 유지하기 위해 사용합니다.</Text>
-      </View>
-      <View style={[s.permCircle, { top: 342 }]}>
-        <MaterialCommunityIcons name="map-marker" size={24} color="#fff" />
-      </View>
-      <View style={[s.permTextBlock, { top: 321 }]}>
-        <Text style={s.permStrong}>위치</Text>
-        <Text style={s.permGray}>긴급 문자에서 사용자의 현재 위치를 보호자에게 전달합니다.</Text>
-      </View>
-      <Bottom label="다음" onPress={() => go("permissionSos")} />
+    <Canvas fluid>
+      <ScrollView
+        style={s.permScroll}
+        contentContainerStyle={[
+          s.permScrollContent,
+          {
+            minHeight: layoutHeight,
+            paddingTop: layoutHeight * (61 / H),
+            paddingBottom: layoutWidth * (20 / W),
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <Text
+          style={[
+            s.permTitleFluid,
+            {
+              width: titleWidth,
+              fontSize: 23 * typeScale,
+              lineHeight: 29 * typeScale,
+            },
+          ]}
+        >
+          SafeCall 이용을 위해 아래의{"\n"}권한을 허용해주세요.
+        </Text>
+
+        <View
+          style={[
+            s.permListFluid,
+            {
+              width: contentWidth,
+              marginTop: layoutHeight * (90 / H),
+              gap: layoutHeight * (64 / H),
+            },
+          ]}
+        >
+          <PermissionFluidRow
+            icon="microphone"
+            title="마이크"
+            body="AI와 실시간 통화 이용 도중 음성 입력을 받기 위해 마이크 권한이 필요합니다."
+            warning="마이크 권한을 허용하지 않을 시 서비스 이용이 불가합니다."
+            iconSize={iconSize}
+            typeScale={typeScale}
+          />
+          <PermissionFluidRow
+            icon="map-marker"
+            title="위치"
+            body="긴급 문자에 사용자의 현재 위치 안내 링크를 함께 제공하기 위해 위치 권한이 필요합니다."
+            warning="위치 권한을 허용하지 않을 시 긴급 문자에 위치 안내 링크가 포함되지 않습니다."
+            iconSize={iconSize}
+            typeScale={typeScale}
+          />
+        </View>
+
+        <Pressable
+          style={[
+            s.permNextButton,
+            {
+              width: buttonWidth,
+              height: buttonHeight,
+              borderRadius: layoutWidth * (20 / W),
+            },
+          ]}
+          onPress={() => go("permissionSos")}
+        >
+          <Text style={[s.bottomText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+            다음
+          </Text>
+        </Pressable>
+      </ScrollView>
     </Canvas>
   );
 }
@@ -1203,6 +1272,51 @@ function ModalField({
       </Text>
       <View style={s.line} />
       {error && <Text style={[s.error, { fontSize: 10 * typeScale, lineHeight: 15 * typeScale }]}>{error}</Text>}
+    </View>
+  );
+}
+
+function PermissionFluidRow({
+  icon,
+  title,
+  body,
+  warning,
+  iconSize,
+  typeScale,
+}: {
+  icon: IconName;
+  title: string;
+  body: string;
+  warning: string;
+  iconSize: number;
+  typeScale: number;
+}) {
+  return (
+    <View style={s.permFluidRow}>
+      <View
+        style={[
+          s.permFluidIcon,
+          {
+            width: iconSize,
+            height: iconSize,
+            borderRadius: iconSize / 2,
+            marginRight: iconSize * (32 / 48),
+          },
+        ]}
+      >
+        <MaterialCommunityIcons name={icon} size={24 * typeScale} color="#fff" />
+      </View>
+      <View style={s.permFluidTextCol}>
+        <Text style={[s.permFluidName, { fontSize: 16 * typeScale, lineHeight: 24 * typeScale }]}>
+          {title}
+        </Text>
+        <Text style={[s.permFluidBody, { fontSize: 12 * typeScale, lineHeight: 18 * typeScale }]}>
+          {body}
+        </Text>
+        <Text style={[s.permFluidWarning, { fontSize: 12 * typeScale, lineHeight: 18 * typeScale }]}>
+          {warning}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -2041,6 +2155,68 @@ const s = StyleSheet.create({
     lineHeight: 24,
   },
   termsNextButton: {
+    backgroundColor: A,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  permScroll: {
+    flex: 1,
+    width: "100%",
+  },
+  permScrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+  },
+  permTitleFluid: {
+    fontFamily: INTER,
+    color: "#fff",
+    fontSize: 23,
+    lineHeight: 29,
+    fontWeight: "400",
+    textAlign: "center",
+  },
+  permListFluid: {
+    alignSelf: "center",
+  },
+  permFluidRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  permFluidIcon: {
+    backgroundColor: "#2D2D2D",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  permFluidTextCol: {
+    flex: 1,
+  },
+  permFluidName: {
+    fontFamily: INTER,
+    color: "#fff",
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: "700",
+  },
+  permFluidBody: {
+    fontFamily: INTER,
+    marginTop: 4,
+    color: "#fff",
+    fontSize: 12,
+    lineHeight: 18,
+    fontWeight: "400",
+  },
+  permFluidWarning: {
+    fontFamily: INTER,
+    marginTop: 4,
+    color: Y,
+    fontSize: 12,
+    lineHeight: 18,
+    fontWeight: "400",
+  },
+  permNextButton: {
+    marginTop: "auto",
     backgroundColor: A,
     alignItems: "center",
     justifyContent: "center",
