@@ -1564,22 +1564,125 @@ function Help({ go, open }: { go: (screen: Screen) => void; open?: boolean }) {
 }
 
 function CallRinging({ go }: { go: (screen: Screen) => void }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const avatarSize = layoutWidth * (112 / W);
+  const avatarImageSize = avatarSize * 1.18;
+  const actionOuterSize = layoutWidth * (76 / W);
+  const actionInnerSize = layoutWidth * (60 / W);
+
   return (
-    <Canvas bg="#252839">
-      <View style={s.callShade} />
-      <Text style={s.incoming}>수신전화</Text>
-      <Text style={s.ringName}>아빠</Text>
-      <Image source={asset.father} style={s.callAvatar} />
-      <View style={s.ringFooter}>
-        <MaterialCommunityIcons name="bell-ring" size={15} color="#fff" />
-        <Text style={s.smallWhite}>안심통화는{"\n"}실제 신고나 구조를{"\n"}대신하지 않습니다.</Text>
+    <Canvas fluid bg="#000">
+      <View style={[s.callRingingFullGradient, callRingingGradient]} />
+      <View style={[s.callRingingFrame, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <View style={[s.callRingingTop, { marginTop: layoutHeight * (156 / H) }]}>
+          <Text style={[s.callRingingIncoming, { fontSize: 16 * typeScale, lineHeight: 24 * typeScale }]}>
+            수신전화
+          </Text>
+          <Text style={[s.callRingingName, { fontSize: 36 * typeScale, lineHeight: 54 * typeScale }]}>
+            아빠
+          </Text>
+          <View
+            style={[
+              s.callRingingAvatarWrap,
+              {
+                width: avatarSize,
+                height: avatarSize,
+                borderRadius: avatarSize / 2,
+                marginTop: layoutWidth * (17 / W),
+              },
+            ]}
+          >
+            <Image
+              source={asset.father}
+              resizeMode="cover"
+              style={[
+                s.callRingingAvatar,
+                {
+                  width: avatarImageSize,
+                  height: avatarImageSize,
+                  borderRadius: avatarImageSize / 2,
+                },
+              ]}
+            />
+          </View>
+        </View>
+
+        <View style={[s.callRingingNotice, { marginTop: layoutHeight * (142 / H) }]}>
+          <MaterialCommunityIcons name="bell-ring" size={15 * typeScale} color="#fff" />
+          <Text style={[s.callRingingNoticeText, { fontSize: 12 * typeScale, lineHeight: 17 * typeScale }]}>
+            안심통화는{"\n"}실제 신고나 구조를{"\n"}대신하지 않습니다.
+          </Text>
+        </View>
+
+        <View
+          style={[
+            s.callRingingActions,
+            {
+              width: layoutWidth * (268 / W),
+              marginBottom: layoutHeight * (69 / H),
+            },
+          ]}
+        >
+          <Pressable
+            style={[
+              s.callRingingActionOuter,
+              {
+                width: actionOuterSize,
+                height: actionOuterSize,
+                borderRadius: actionOuterSize / 2,
+              },
+            ]}
+            onPress={() => go("call")}
+          >
+            <View
+              style={[
+                s.callRingingActionInner,
+                {
+                  width: actionInnerSize,
+                  height: actionInnerSize,
+                  borderRadius: actionInnerSize / 2,
+                  backgroundColor: "#21D748",
+                },
+              ]}
+            >
+              <MaterialCommunityIcons name="phone" size={35 * typeScale} color="#fff" />
+            </View>
+          </Pressable>
+          <Pressable
+            style={[
+              s.callRingingActionOuter,
+              {
+                width: actionOuterSize,
+                height: actionOuterSize,
+                borderRadius: actionOuterSize / 2,
+              },
+            ]}
+            onPress={() => go("home")}
+          >
+            <View
+              style={[
+                s.callRingingActionInner,
+                {
+                  width: actionInnerSize,
+                  height: actionInnerSize,
+                  borderRadius: actionInnerSize / 2,
+                  backgroundColor: "#EF4444",
+                },
+              ]}
+            >
+              <MaterialCommunityIcons name="phone-hangup" size={35 * typeScale} color="#fff" />
+            </View>
+          </Pressable>
+        </View>
       </View>
-      <Pressable style={s.answer} onPress={() => go("call")}>
-        <MaterialCommunityIcons name="phone" size={35} color="#fff" />
-      </Pressable>
-      <Pressable style={s.decline} onPress={() => go("home")}>
-        <MaterialCommunityIcons name="phone-hangup" size={35} color="#fff" />
-      </Pressable>
     </Canvas>
   );
 }
@@ -2117,6 +2220,9 @@ function Sound({ title, selected }: { title: "소리" | "진동" | "무음"; sel
 // 5. STYLES (스타일시트)
 // ============================================================================
 const fill = { position: "absolute" as const, top: 0, right: 0, bottom: 0, left: 0 };
+const callRingingGradient = {
+  backgroundImage: "linear-gradient(180deg, #4A4F60 0%, #000000 50%, #444365 100%)",
+} as any;
 
 const design = StyleSheet.create({
   homeGear: {
@@ -2769,6 +2875,66 @@ const s = StyleSheet.create({
     fontWeight: "400",
     textAlign: "center",
     includeFontPadding: false,
+  },
+  callRingingFullGradient: {
+    ...fill,
+  },
+  callRingingFrame: {
+    alignSelf: "center",
+    height: "100%",
+    alignItems: "center",
+    overflow: "hidden",
+    backgroundColor: "transparent",
+  },
+  callRingingTop: {
+    alignItems: "center",
+  },
+  callRingingIncoming: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callRingingName: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+    marginTop: 9,
+  },
+  callRingingAvatarWrap: {
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  callRingingAvatar: {},
+  callRingingNotice: {
+    alignItems: "center",
+  },
+  callRingingNoticeText: {
+    fontFamily: INTER,
+    marginTop: 8,
+    color: "#FFFFFF",
+    fontWeight: "700",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callRingingActions: {
+    marginTop: "auto",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  callRingingActionOuter: {
+    backgroundColor: "rgba(255,255,255,0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  callRingingActionInner: {
+    alignItems: "center",
+    justifyContent: "center",
   },
   loginScreen: {
     flex: 1,
