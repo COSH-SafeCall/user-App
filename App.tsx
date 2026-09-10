@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import {
   Image,
   ImageBackground,
-  PanResponder,
   Pressable,
   ScrollView,
   StatusBar,
@@ -21,14 +20,14 @@ type IconName = React.ComponentProps<typeof MaterialCommunityIcons>["name"];
 type Screen =
   | "login" | "kakao" | "profile" | "contacts" | "contactModal" | "terms"
   | "permissionBasic" | "permissionSos" | "sosSystem" | "callPermission" | "permissionToast"
-  | "locationGuide" | "complete" | "personaUse" | "personaPeople" | "voiceCheck" | "voiceLoading"
+  | "complete" | "personaUse" | "personaPeople" | "callSetupCheck" | "voiceLoading"
   | "home" | "help" | "helpOpen" | "callRinging" | "call" | "setting" | "settingDialog" | "withdraw"
   | "editProfile" | "editContacts" | "soundSetting" | "permissionSetting";
 
 const order: Screen[] = [
   "login", "kakao", "permissionToast", "profile", "contacts", "contactModal", "terms",
   "permissionBasic", "callPermission", "permissionSos", "sosSystem", "complete",
-  "locationGuide", "home", "personaUse", "personaPeople", "voiceCheck", "voiceLoading",
+  "home", "personaUse", "personaPeople", "callSetupCheck", "voiceLoading",
   "callRinging", "call", "help", "helpOpen", "setting", "settingDialog", "withdraw", "editProfile",
   "editContacts", "soundSetting", "permissionSetting",
 ];
@@ -82,11 +81,10 @@ export default function App() {
       {screen === "sosSystem" && <ImageScreen src={asset.sosSystem} onPress={() => go("complete")} />}
       {screen === "callPermission" && <ImageScreen src={asset.callPermission} onPress={() => go("permissionSos")} />}
       {screen === "permissionToast" && <Profile go={go} kakaoFailure />}
-      {screen === "locationGuide" && <LocationGuide go={go} />}
       {screen === "complete" && <Complete go={go} />}
       {screen === "personaUse" && <PersonaUse go={go} />}
       {screen === "personaPeople" && <PersonaPeople go={go} />}
-      {screen === "voiceCheck" && <VoiceCheck go={go} />}
+      {screen === "callSetupCheck" && <CallSetupCheck go={go} />}
       {screen === "voiceLoading" && <VoiceLoading go={go} />}
       {screen === "home" && <Home go={go} />}
       {screen === "help" && <Help go={go} />}
@@ -802,117 +800,6 @@ function PermissionIntro({ go, sos }: { go: (screen: Screen) => void; sos: boole
   );
 }
 
-function LocationGuide({ go }: { go: (screen: Screen) => void }) {
-  const { width, height } = useWindowDimensions();
-  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
-  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
-  const layoutWidth = Math.max(
-    MIN_SCREEN_WIDTH,
-    Math.min(viewportWidth, viewportHeight * (W / H)),
-  );
-  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
-  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
-  const contentWidth = layoutWidth * (332 / W);
-  const buttonAreaWidth = layoutWidth * (362 / W);
-  const buttonGap = layoutWidth * (10 / W);
-  const buttonWidth = (buttonAreaWidth - buttonGap) / 2;
-  const buttonHeight = buttonAreaWidth * (56 / 362);
-
-  const text = [
-    "하단 볼륨 버튼을 3초 이상 눌러 긴급 메시지 전송 기능을 사용할 수 있습니다.",
-    "전송이 정상적으로 이뤄지고 나면 사용자에게도 긴급 메시지 발송 성공 메시지가 도착합니다.",
-    "안심 통화 중에는 진동으로 메시지 발송 여부를 알려줍니다.",
-    "긴 진동이 울렸다면 전송 오류로 인하여 메시지가 제대로 전송되지 않았다는 의미입니다. 이 경우 다시 볼륨 버튼을 눌러 메시지를 재전송해주세요.",
-    "짧은 진동이 2번 울렸다면 메시지가 잘 전달된 것입니다."
-  ];
-  return (
-    <Canvas fluid bg={A}>
-      <ImageBackground source={asset.completeGradient} style={s.completeFluidBg} resizeMode="cover">
-        <ScrollView
-        style={s.locationScroll}
-        contentContainerStyle={[
-          s.locationScrollContent,
-          {
-            minHeight: layoutHeight,
-            paddingTop: layoutWidth * (110 / W),
-            paddingBottom: layoutWidth * (20 / W),
-          },
-        ]}
-        showsVerticalScrollIndicator={false}
-        bounces={false}
-      >
-        <Text
-          style={[
-            s.locationTitle,
-            {
-              fontSize: 23 * typeScale,
-              lineHeight: 34 * typeScale,
-            },
-          ]}
-        >
-          내 위치를 보호자에게 알려보세요.
-        </Text>
-
-        <View style={[s.locationBubbleStack, { marginTop: layoutWidth * (72 / W), gap: layoutWidth * (18 / W) }]}>
-          {text.map((v) => (
-            <Text
-              key={v}
-              style={[
-                s.locationBubble,
-                {
-                  width: contentWidth,
-                  minHeight: layoutWidth * (72 / W),
-                  borderRadius: layoutWidth * (35 / W),
-                  paddingHorizontal: layoutWidth * (30 / W),
-                  paddingVertical: layoutWidth * (18 / W),
-                  fontSize: 14 * typeScale,
-                  lineHeight: 20 * typeScale,
-                },
-              ]}
-            >
-              {v}
-            </Text>
-          ))}
-        </View>
-
-        <View style={[s.completeButtonRow, { width: buttonAreaWidth, height: buttonHeight, gap: buttonGap }]}>
-          <Pressable
-            style={[
-              s.completeSkip,
-              {
-                width: buttonWidth,
-                height: buttonHeight,
-                borderRadius: layoutWidth * (6 / W),
-              },
-            ]}
-            onPress={() => go("home")}
-          >
-            <Text style={[s.completeSkipText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
-              건너뛰기
-            </Text>
-          </Pressable>
-          <Pressable
-            style={[
-              s.completeOk,
-              {
-                width: buttonWidth,
-                height: buttonHeight,
-                borderRadius: layoutWidth * (6 / W),
-              },
-            ]}
-            onPress={() => go("home")}
-          >
-            <Text style={[s.completeOkText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
-              확인
-            </Text>
-          </Pressable>
-        </View>
-        </ScrollView>
-      </ImageBackground>
-    </Canvas>
-  );
-}
-
 function Complete({ go }: { go: (screen: Screen) => void }) {
   const { width, height } = useWindowDimensions();
   const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
@@ -979,7 +866,7 @@ function Complete({ go }: { go: (screen: Screen) => void }) {
                   borderRadius: layoutWidth * (6 / W),
                 },
               ]}
-              onPress={() => go("locationGuide")}
+              onPress={() => go("home")}
             >
               <Text style={[s.completeSkipText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
                 건너뛰기
@@ -994,7 +881,7 @@ function Complete({ go }: { go: (screen: Screen) => void }) {
                   borderRadius: layoutWidth * (6 / W),
                 },
               ]}
-              onPress={() => go("locationGuide")}
+              onPress={() => go("home")}
             >
               <Text style={[s.completeOkText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
                 확인
@@ -1008,78 +895,471 @@ function Complete({ go }: { go: (screen: Screen) => void }) {
 }
 
 function PersonaUse({ go }: { go: (screen: Screen) => void }) {
+  const [selected, setSelected] = useState(0);
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const topButtonTop = layoutHeight * (53 / H);
+  const contentWidth = layoutWidth * (362 / W);
+  const choiceSize = layoutWidth * (100 / W);
+  const choiceColumnWidth = layoutWidth * (100 / W);
+  const choiceGap = layoutWidth * (24 / W);
+  const nextHeight = contentWidth * (56 / 362);
+
+  const choices: Array<{ icon: IconName; text: string }> = [
+    { icon: "walk", text: "누군가 따라오는\n것 같아요" },
+    { icon: "car", text: "택시 안이\n불안해요" },
+    { icon: "account-tie", text: "낯선 사람이\n근처에 있어요" },
+    { icon: "account-group", text: "혼자 귀가하기\n무서워요" },
+  ];
+
   return (
-    <Canvas>
-      <Pager active={0} />
-      <Text style={s.personaTitle}>어떤 상황에서 안심 통화를 사용하시나요?</Text>
-      <View style={s.choiceGrid}>
-        <Choice icon="walk" text={"누군가 따라오는\n것 같아요"} selected />
-        <Choice icon="car" text={"택시 안이\n불안해요"} />
-        <Choice icon="account-tie" text={"낯선 사람이\n근처에 있어요"} />
-        <Choice icon="account-group" text={"혼자 귀가하기\n무서워요"} />
+    <Canvas fluid>
+      <View style={[s.personaFluidFrame, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <Pressable
+          style={[s.personaArrow, { top: topButtonTop, left: layoutWidth * (18 / W) }]}
+          onPress={() => go("home")}
+        >
+          <MaterialCommunityIcons name="chevron-left" size={46 * typeScale} color="#FFFFFF" />
+        </Pressable>
+        <View style={[s.personaDotsFluid, { top: layoutHeight * (65 / H), gap: layoutWidth * (11 / W) }]}>
+          {[0, 1, 2].map((n) => (
+            <View
+              key={n}
+              style={[
+                s.personaDotFluid,
+                {
+                  width: n === 0 ? layoutWidth * (10 / W) : layoutWidth * (6 / W),
+                  height: n === 0 ? layoutWidth * (10 / W) : layoutWidth * (6 / W),
+                  borderRadius: n === 0 ? layoutWidth * (5 / W) : layoutWidth * (3 / W),
+                  backgroundColor: n === 0 ? A : "#D9D9D9",
+                },
+              ]}
+            />
+          ))}
+        </View>
+        <Pressable
+          style={[s.personaArrow, { top: topButtonTop, right: layoutWidth * (18 / W) }]}
+          onPress={() => go("personaPeople")}
+        >
+          <MaterialCommunityIcons name="chevron-right" size={46 * typeScale} color="#FFFFFF" />
+        </Pressable>
+
+        <Text
+          style={[
+            s.personaTitleFluid,
+            {
+              top: layoutHeight * (145 / H),
+              fontSize: 16 * typeScale,
+              lineHeight: 24 * typeScale,
+            },
+          ]}
+        >
+          어떤 상황에서 안심 통화를 사용하시나요?
+        </Text>
+
+        <View
+          style={[
+            s.personaChoiceGridFluid,
+            {
+              top: layoutHeight * (233 / H),
+              width: contentWidth,
+              columnGap: choiceGap,
+              rowGap: layoutWidth * (28 / W),
+            },
+          ]}
+        >
+          {choices.map((choice, index) => (
+            <Pressable
+              key={choice.text}
+              style={[s.personaChoiceFluid, { width: choiceColumnWidth }]}
+              onPress={() => setSelected(index)}
+            >
+              <View
+                style={[
+                  s.personaChoiceCircleFluid,
+                  {
+                    width: choiceSize,
+                    height: choiceSize,
+                    borderRadius: choiceSize / 2,
+                    backgroundColor: selected === index ? A : "#FFFFFF",
+                  },
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name={choice.icon}
+                  size={68 * typeScale}
+                  color={selected === index ? "#FFFFFF" : A}
+                />
+              </View>
+              <Text
+                style={[
+                  s.personaChoiceTextFluid,
+                  {
+                    marginTop: layoutWidth * (10 / W),
+                    fontSize: 13 * typeScale,
+                    lineHeight: 18 * typeScale,
+                  },
+                ]}
+              >
+                {choice.text}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <Pressable
+          style={[
+            s.personaNextFluid,
+            {
+              width: contentWidth,
+              height: nextHeight,
+              borderRadius: layoutWidth * (20 / W),
+              bottom: layoutWidth * (57 / W),
+            },
+          ]}
+          onPress={() => go("personaPeople")}
+        >
+          <Text style={[s.personaNextTextFluid, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+            다음
+          </Text>
+        </Pressable>
+        <View style={[s.personaBottomPeekFluid, { height: layoutWidth * (48 / W) }]}>
+          <View
+            style={[
+              s.personaPeekHandleFluid,
+              {
+                marginTop: layoutWidth * (16 / W),
+                width: layoutWidth * (35 / W),
+                height: layoutWidth * (6 / W),
+                borderRadius: layoutWidth * (20 / W),
+              },
+            ]}
+          />
+        </View>
       </View>
-      <BottomPeek />
-      <Bottom label="다음" onPress={() => go("personaPeople")} withPeek />
     </Canvas>
   );
 }
 
 function PersonaPeople({ go }: { go: (screen: Screen) => void }) {
+  const [selected, setSelected] = useState(0);
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const topButtonTop = layoutHeight * (53 / H);
+  const contentWidth = layoutWidth * (362 / W);
+  const personSize = layoutWidth * (100 / W);
+  const personGap = layoutWidth * (24 / W);
+  const nextHeight = contentWidth * (56 / 362);
+
+  const people = [
+    { img: asset.father, label: "아빠" },
+    { img: asset.mother, label: "엄마" },
+    { img: asset.friend, label: "친구" },
+  ];
+
   return (
-    <Canvas>
-      <Pager active={1} />
-      <Text style={s.personaTitle}>통화하고 싶은 가상의 인물을 선택해주세요.</Text>
-      <View style={s.peopleRow}>
-        <Person img={asset.father} label="아빠" selected />
-        <Person img={asset.mother} label="엄마" />
-        <Person img={asset.friend} label="친구" />
+    <Canvas fluid>
+      <View style={[s.personaFluidFrame, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <Pressable
+          style={[s.personaArrow, { top: topButtonTop, left: layoutWidth * (18 / W) }]}
+          onPress={() => go("personaUse")}
+        >
+          <MaterialCommunityIcons name="chevron-left" size={46 * typeScale} color="#FFFFFF" />
+        </Pressable>
+        <View style={[s.personaDotsFluid, { top: layoutHeight * (65 / H), gap: layoutWidth * (11 / W) }]}>
+          {[0, 1, 2].map((n) => (
+            <View
+              key={n}
+              style={[
+                s.personaDotFluid,
+                {
+                  width: n === 1 ? layoutWidth * (10 / W) : layoutWidth * (6 / W),
+                  height: n === 1 ? layoutWidth * (10 / W) : layoutWidth * (6 / W),
+                  borderRadius: n === 1 ? layoutWidth * (5 / W) : layoutWidth * (3 / W),
+                  backgroundColor: n === 1 ? A : "#D9D9D9",
+                },
+              ]}
+            />
+          ))}
+        </View>
+        <Pressable
+          style={[s.personaArrow, { top: topButtonTop, right: layoutWidth * (18 / W) }]}
+          onPress={() => go("callSetupCheck")}
+        >
+          <MaterialCommunityIcons name="chevron-right" size={46 * typeScale} color="#FFFFFF" />
+        </Pressable>
+
+        <Text
+          style={[
+            s.personaTitleFluid,
+            {
+              top: layoutHeight * (145 / H),
+              fontSize: 16 * typeScale,
+              lineHeight: 24 * typeScale,
+            },
+          ]}
+        >
+          통화하고 싶은 가상의 인물을 선택해주세요.
+        </Text>
+
+        <View
+          style={[
+            s.personaChoiceGridFluid,
+            {
+              top: layoutHeight * (233 / H),
+              width: contentWidth,
+              gap: personGap,
+            },
+          ]}
+        >
+          {people.map((person, index) => (
+            <Pressable
+              key={person.label}
+              style={[s.personaChoiceFluid, { width: personSize }]}
+              onPress={() => setSelected(index)}
+            >
+              <Image
+                source={person.img}
+                style={[
+                  s.personaPersonImageFluid,
+                  {
+                    width: personSize,
+                    height: personSize,
+                    borderRadius: personSize / 2,
+                    borderWidth: selected === index ? layoutWidth * (6 / W) : 0,
+                  },
+                ]}
+              />
+              <Text
+                style={[
+                  s.personaPersonLabelFluid,
+                  {
+                    marginTop: layoutWidth * (9 / W),
+                    fontSize: 13 * typeScale,
+                    lineHeight: 18 * typeScale,
+                  },
+                ]}
+              >
+                {person.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <Pressable
+          style={[
+            s.personaNextFluid,
+            {
+              width: contentWidth,
+              height: nextHeight,
+              borderRadius: layoutWidth * (20 / W),
+              bottom: layoutWidth * (57 / W),
+            },
+          ]}
+          onPress={() => go("callSetupCheck")}
+        >
+          <Text style={[s.personaNextTextFluid, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+            다음
+          </Text>
+        </Pressable>
+        <View style={[s.personaBottomPeekFluid, { height: layoutWidth * (48 / W) }]}>
+          <View
+            style={[
+              s.personaPeekHandleFluid,
+              {
+                marginTop: layoutWidth * (16 / W),
+                width: layoutWidth * (35 / W),
+                height: layoutWidth * (6 / W),
+                borderRadius: layoutWidth * (20 / W),
+              },
+            ]}
+          />
+        </View>
       </View>
-      <BottomPeek />
-      <Bottom label="다음" onPress={() => go("voiceCheck")} withPeek />
     </Canvas>
   );
 }
 
-function VoiceCheck({ go }: { go: (screen: Screen) => void }) {
+function CallSetupCheck({ go }: { go: (screen: Screen) => void }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const contentWidth = layoutWidth * (382 / W);
+  const iconSize = layoutWidth * (64 / W);
+  const buttonHeight = contentWidth * (56 / 382);
+
   return (
-    <Canvas bg="#455269">
-      <Pressable style={s.voiceBack} onPress={() => go("personaPeople")}>
-        <Image source={require("./assets/figma/voice-imgChevronLeft.png")} style={{ width: 42, height: 42 }} />
-      </Pressable>
-      <Text style={design.voiceTitle}>모두 확인하셨나요?</Text>
-      <View style={design.speakers}>
-        <Image source={require("./assets/figma/voice-imgVolumeHigh.png")} style={{ width: 87.4568, height: 87.4568 }} />
-        <Image source={require("./assets/figma/voice-imgVolumeHigh1.png")} style={{ width: 90, height: 90 }} />
+    <Canvas fluid bg="#455269">
+      <View style={[s.callSetupFrame, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <View style={[s.callSetupTopBar, { paddingTop: layoutHeight * (43 / H), paddingHorizontal: layoutWidth * (22 / W) }]}>
+          <Pressable style={s.callSetupBack} onPress={() => go("personaPeople")}>
+            <MaterialCommunityIcons name="chevron-left" size={34 * typeScale} color="#FFFFFF" />
+          </Pressable>
+          <Text style={[s.callSetupTitle, { fontSize: 20 * typeScale, lineHeight: 24 * typeScale }]}>
+            모두 확인하셨나요?
+          </Text>
+          <View style={s.callSetupTopSpacer} />
+        </View>
+
+        <View style={[s.callSetupCheckRow, { width: layoutWidth * (292 / W), marginTop: layoutHeight * (292 / H) }]}>
+          <View style={s.callSetupCheckItem}>
+            <MaterialCommunityIcons name="wifi-off" size={iconSize} color="#D9DEE7" />
+            <Text style={[s.callSetupCaption, { marginTop: layoutWidth * (28 / W), fontSize: 12 * typeScale, lineHeight: 16 * typeScale }]}>
+              와이파이를 끄고 모바일{"\n"}데이터를 사용해주세요
+            </Text>
+          </View>
+          <View style={s.callSetupCheckItem}>
+            <MaterialCommunityIcons name="volume-high" size={iconSize} color="#D9DEE7" />
+            <Text style={[s.callSetupCaption, { marginTop: layoutWidth * (28 / W), fontSize: 12 * typeScale, lineHeight: 16 * typeScale }]}>
+              볼륨 4-5로 설정해주세요
+            </Text>
+          </View>
+        </View>
+
+        <View
+          style={[
+            s.callSetupNotice,
+            {
+              width: layoutWidth * (283 / W),
+              minHeight: layoutWidth * (72 / W),
+              borderRadius: layoutWidth * (35 / W),
+              paddingHorizontal: layoutWidth * (30 / W),
+              paddingVertical: layoutWidth * (18 / W),
+              bottom: layoutWidth * (94 / W),
+            },
+          ]}
+        >
+          <Text style={[s.callSetupNoticeText, { fontSize: 13 * typeScale, lineHeight: 16 * typeScale }]}>
+            화면을 나가거나 긴급 SOS 통화를 사용할 경우 AI 통화는 자동으로 종료됩니다.
+          </Text>
+        </View>
+
+        <Pressable
+          style={[
+            s.callSetupNext,
+            {
+              width: contentWidth,
+              height: buttonHeight,
+              borderRadius: layoutWidth * (20 / W),
+              bottom: layoutWidth * (10 / W),
+            },
+          ]}
+          onPress={() => go("voiceLoading")}
+        >
+          <Text style={[s.callSetupNextText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+            다음
+          </Text>
+        </Pressable>
       </View>
-      <View style={design.captionClip}>
-        <Text numberOfLines={1} style={design.voiceCaptionLeft}>와이파이를 끄고 모바일 데이터를 사용해주세요</Text>
-      </View>
-      <Text style={design.voiceCaptionRight}>볼륨 4-5로 설정해주세요</Text>
-      <View style={design.voiceBubble}>
-        <Text style={design.bubbleText}>화면을 나가거나 긴급 SOS 통화를 사용할 경우 AI 통화는 자동으로 종료됩니다.</Text>
-      </View>
-      <Pressable style={design.voiceNext} onPress={() => go("voiceLoading")}>
-        <Text style={s.bottomText}>다음</Text>
-      </Pressable>
     </Canvas>
   );
 }
 
 function VoiceLoading({ go }: { go: (screen: Screen) => void }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const bubbleWidth = layoutWidth * (273 / W);
+
   return (
-    <Canvas bg="#4B5B73">
-      <Text style={s.loadingText}>가상 통화를 준비하고 있습니다...</Text>
-      <View style={s.equalizer}>
-        {[28, 47, 66, 38, 58].map((h, i) => (
-          <View key={i} style={[s.bar, { height: h, backgroundColor: i % 2 ? "#CF8EFF" : A }]} />
-        ))}
-      </View>
-      <View style={s.loadingBubble}>
-        <Text style={s.bubbleText}>
-          AI는 실제로 실행되지 않은 112 신고, 긴급 문자 발송 또는 위치 링크 전송이 완료되었다고 말하지 않습니다.{"\n\n"}
-          AI는 사용자를 대신해 위험 여부를 판단하거나 긴급 문자 발송 또는 112 신고를 실행하지 않습니다.{"\n\n"}
-          AI는 사용자에게 위험 인물과 대치, 추적 또는 촬영을 유도하지 않습니다.
+    <Canvas fluid bg="#455269">
+      <View style={[s.voiceLoadingFrame, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <Text
+          style={[
+            s.voiceLoadingTitle,
+            {
+              marginTop: layoutHeight * (147 / H),
+              fontSize: 20 * typeScale,
+              lineHeight: 30 * typeScale,
+            },
+          ]}
+        >
+          가상 통화를 준비하고 있습니다...
         </Text>
+
+        <View style={[s.voiceLoadingIcon, { marginTop: layoutHeight * (140 / H), width: layoutWidth * (95 / W), height: layoutWidth * (75 / W) }]}>
+          {[
+            { dot: "#C237D8", bar: "#FFFFFF", h: 36, dotTop: 0 },
+            { dot: "#46B9FF", bar: "#8D62C4", h: 75, dotTop: 18 },
+            { dot: null, bar: "#A977E8", h: 50, dotTop: 0 },
+            { dot: "#F8C51B", bar: "#3D34B5", h: 57, dotTop: 0 },
+            { dot: null, bar: "#9CE8F7", h: 27, dotTop: 0 },
+          ].map((item, index) => (
+            <View key={index} style={s.voiceLoadingBarSlot}>
+              {item.dot && (
+                <View
+                  style={[
+                    s.voiceLoadingDot,
+                    {
+                      backgroundColor: item.dot,
+                      marginTop: layoutWidth * (item.dotTop / W),
+                      width: layoutWidth * (10 / W),
+                      height: layoutWidth * (10 / W),
+                      borderRadius: layoutWidth * (5 / W),
+                    },
+                  ]}
+                />
+              )}
+              <View
+                style={[
+                  s.voiceLoadingBar,
+                  {
+                    backgroundColor: item.bar,
+                    height: layoutWidth * (item.h / W),
+                    width: layoutWidth * (10 / W),
+                    borderRadius: layoutWidth * (5 / W),
+                    marginTop: item.dot ? layoutWidth * (6 / W) : "auto",
+                  },
+                ]}
+              />
+            </View>
+          ))}
+        </View>
+
+        <View
+          style={[
+            s.voiceLoadingBubble,
+            {
+              width: bubbleWidth,
+              borderRadius: layoutWidth * (20 / W),
+              paddingHorizontal: layoutWidth * (28 / W),
+              paddingVertical: layoutWidth * (36 / W),
+              marginTop: layoutHeight * (135 / H),
+            },
+          ]}
+        >
+          <Text style={[s.voiceLoadingBubbleText, { fontSize: 12 * typeScale, lineHeight: 16 * typeScale }]}>
+            AI는 실제로 실행되지 않은 112 신고, 긴급 문자 발송 또는 위치 링크 전송이 완료되었다고 말하지 않습니다.{"\n\n"}
+            AI는 사용자를 대신해 위험 여부를 판단하거나 긴급 문자 발송 또는 112 신고를 실행하지 않습니다.{"\n\n"}
+            AI는 사용자에게 위험 인물과 대치, 추적 또는 촬영을 유도하지 않습니다.
+          </Text>
+        </View>
       </View>
       <Pressable style={s.fullTap} onPress={() => go("callRinging")} />
     </Canvas>
@@ -1088,47 +1368,171 @@ function VoiceLoading({ go }: { go: (screen: Screen) => void }) {
 
 function Home({ go }: { go: (screen: Screen) => void }) {
   const [drawerOpen, setDrawerOpen] = useState(true);
-  const miniDrawerPan = React.useMemo(() => PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dy) > 8,
-    onPanResponderRelease: (_, gesture) => { if (gesture.dy < -18) setDrawerOpen(true); }
-  }), []);
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const topButtonSize = layoutWidth * (40 / W);
+  const callSize = layoutWidth * (220 / W);
+  const sheetHeight = layoutWidth * (209 / W);
+  const collapsedSheetHeight = layoutWidth * (48 / W);
 
   return (
-    <Canvas>
-      {drawerOpen && <Pressable style={s.homeOutsideClose} onPress={() => setDrawerOpen(false)} />}
-      <Pressable style={design.homeGear} onPress={() => go("setting")}>
-        <Image source={require("./assets/figma/home-imgCogOutline.png")} style={{ width: 30, height: 30 }} />
-      </Pressable>
-      <Pressable style={design.homeHelp} onPress={() => go("help")}>
-        <Image source={require("./assets/figma/home-imgHelp.png")} style={{ width: 24, height: 24 }} />
-      </Pressable>
+    <Canvas fluid>
+      <View style={[s.homeFrame, { width: layoutWidth, minHeight: layoutHeight }]}>
+        {drawerOpen && (
+          <Pressable
+            style={[s.homeOutsideClose, { bottom: sheetHeight }]}
+            onPress={() => setDrawerOpen(false)}
+          />
+        )}
+        <Pressable
+          style={[
+            s.homeIconButton,
+            {
+              top: layoutHeight * (33 / H),
+              left: layoutWidth * (30 / W),
+              width: topButtonSize,
+              height: topButtonSize,
+              borderRadius: topButtonSize / 2,
+            },
+          ]}
+          onPress={() => go("setting")}
+        >
+          <MaterialCommunityIcons name="cog-outline" size={30 * typeScale} color="#000" />
+        </Pressable>
+        <Pressable
+          style={[
+            s.homeIconButton,
+            {
+              top: layoutHeight * (33 / H),
+              right: layoutWidth * (30 / W),
+              width: topButtonSize,
+              height: topButtonSize,
+              borderRadius: topButtonSize / 2,
+            },
+          ]}
+          onPress={() => go("help")}
+        >
+          <Text style={[s.homeHelpText, { fontSize: 30 * typeScale, lineHeight: 36 * typeScale }]}>?</Text>
+        </Pressable>
 
-      <Text style={design.homeTitle}>눌러서 AI 안심통화를 시작하세요</Text>
-      <Text style={design.homeSub}>가상 통화는 실제 신고나 구조를 대신하지 않습니다.</Text>
-
-      <Pressable style={design.sosCircle} onPress={() => go("personaUse")}>
-        <Image source={require("./assets/figma/home-imgFrame1.png")} style={{ width: 220, height: 220 }} />
-      </Pressable>
-
-      <Text style={design.homeNotice}>
-        긴급 메세지 기능이 <Text style={design.available}>사용 가능</Text>합니다.{"\n"}
-        긴급 메세지 위치 전송이 <Text style={design.warnInline}>사용 불가</Text>합니다.
-      </Text>
-
-      {drawerOpen ? (
-        <View style={design.homeInfo}>
-          <View style={design.homeHandle} />
-          <Text style={design.homeInfoText}>
-            전원 버튼을 5번 연속으로 눌러 <Text style={design.blueBold}>긴급 호출 기능</Text>을 실행시킬 수 있습니다.{"\n\n"}
-            하단 볼륨 버튼을 3초 이상 눌러 <Text style={design.blueBold}>긴급 문자 보내기 기능</Text>을 실행시킬 수 있습니다.{"\n\n"}
-            긴급 호출 기능(긴급 SOS 기능)은 SafeCall 과 별개로 항상 작동되니 실수로 실행시키지 않도록 주의해 주십시오. 긴급 문자 보내기 기능은 앱 실행중에만 실행 가능합니다.
+        <View
+          style={[
+            s.homeHeaderTextWrap,
+            {
+              top: layoutHeight * (183 / H),
+              width: layoutWidth * (320 / W),
+            },
+          ]}
+        >
+          <Text style={[s.homeTitleFluid, { fontSize: 20 * typeScale, lineHeight: 24 * typeScale }]}>
+            눌러서 AI 안심통화를 시작하세요
+          </Text>
+          <Text style={[s.homeWarningFluid, { fontSize: 13 * typeScale, lineHeight: 16 * typeScale }]}>
+            가상 통화는 실제 신고나 구조를 대신하지 않습니다.
           </Text>
         </View>
-      ) : (
-        <Pressable style={design.homeMiniDrawer} onPress={() => setDrawerOpen(true)} {...miniDrawerPan.panHandlers}>
-          <View style={design.peekHandle} />
+
+        <Pressable
+          style={[
+            s.homeCallButton,
+            {
+              top: layoutHeight * (312 / H),
+              width: callSize,
+              height: callSize,
+            },
+          ]}
+          onPress={() => go("personaUse")}
+        >
+          <Image source={require("./assets/figma/home-imgFrame1.png")} style={{ width: callSize, height: callSize }} />
         </Pressable>
-      )}
+
+        <Text
+          style={[
+            s.homeNoticeFluid,
+            {
+              top: layoutHeight * (611 / H),
+              width: layoutWidth * (250 / W),
+              fontSize: 11 * typeScale,
+              lineHeight: 16.5 * typeScale,
+            },
+          ]}
+        >
+          긴급 메세지 기능이 <Text style={design.available}>사용 가능</Text>합니다.{"\n"}
+          긴급 메세지 위치 전송이 <Text style={design.warnInline}>사용 불가</Text>합니다.
+        </Text>
+
+        {drawerOpen ? (
+          <View
+            style={[
+              s.homeInfoSheet,
+              {
+                height: sheetHeight,
+                borderTopLeftRadius: layoutWidth * (60 / W),
+                borderTopRightRadius: layoutWidth * (60 / W),
+              },
+            ]}
+          >
+            <Pressable style={s.homeSheetHandlePress} onPress={() => setDrawerOpen(false)}>
+              <View
+                style={[
+                  s.homeSheetHandle,
+                  {
+                    width: layoutWidth * (35 / W),
+                    height: layoutWidth * (6 / W),
+                    borderRadius: layoutWidth * (20 / W),
+                  },
+                ]}
+              />
+            </Pressable>
+            <Text
+              style={[
+                s.homeInfoTextFluid,
+                {
+                  marginTop: layoutWidth * (39.5 / W),
+                  paddingHorizontal: layoutWidth * (30 / W),
+                  fontSize: 13 * typeScale,
+                  lineHeight: 16 * typeScale,
+                },
+              ]}
+            >
+              전원 버튼을 5번 연속으로 눌러 <Text style={s.homeInfoAccent}>긴급 호출 기능</Text>을 실행시킬 수 있습니다.{"\n\n"}
+              하단 볼륨 버튼을 3초 이상 눌러 <Text style={s.homeInfoAccent}>긴급 문자 보내기 기능</Text>을 실행시킬 수 있습니다.{"\n\n"}
+              긴급 호출 기능(긴급 SOS 기능)은 SafeCall 과 별개로 항상 작동되니 실수로 실행시키지 않도록 주의해 주십시오. 긴급 문자 보내기 기능은 앱 실행중에만 실행 가능합니다.
+            </Text>
+          </View>
+        ) : (
+          <Pressable
+            style={[
+              s.homeInfoSheet,
+              {
+                height: collapsedSheetHeight,
+                borderTopLeftRadius: layoutWidth * (60 / W),
+                borderTopRightRadius: layoutWidth * (60 / W),
+              },
+            ]}
+            onPress={() => setDrawerOpen(true)}
+          >
+            <View
+              style={[
+                s.homeSheetHandle,
+                {
+                  marginTop: layoutWidth * (16 / W),
+                  width: layoutWidth * (35 / W),
+                  height: layoutWidth * (6 / W),
+                  borderRadius: layoutWidth * (20 / W),
+                },
+              ]}
+            />
+          </Pressable>
+        )}
+      </View>
     </Canvas>
   );
 }
@@ -2064,6 +2468,308 @@ const s = StyleSheet.create({
     color: A,
     fontWeight: "400",
   },
+  homeFrame: {
+    alignSelf: "center",
+    height: "100%",
+    position: "relative",
+    overflow: "hidden",
+    backgroundColor: "#000",
+  },
+  homeIconButton: {
+    position: "absolute",
+    backgroundColor: "#989EC9",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 3,
+  },
+  homeHelpText: {
+    fontFamily: INTER,
+    color: "#000",
+    fontWeight: "700",
+    includeFontPadding: false,
+    textAlign: "center",
+  },
+  homeHeaderTextWrap: {
+    position: "absolute",
+    alignSelf: "center",
+    alignItems: "center",
+    zIndex: 2,
+  },
+  homeTitleFluid: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  homeWarningFluid: {
+    fontFamily: INTER,
+    color: Y,
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+    marginTop: 10,
+  },
+  homeCallButton: {
+    position: "absolute",
+    alignSelf: "center",
+    zIndex: 2,
+  },
+  homeNoticeFluid: {
+    position: "absolute",
+    alignSelf: "center",
+    fontFamily: INTER,
+    color: "#CACACA",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+    zIndex: 2,
+  },
+  homeInfoSheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderWidth: 2,
+    borderColor: "#455269",
+    backgroundColor: "#1E293B",
+    overflow: "hidden",
+    zIndex: 4,
+  },
+  homeSheetHandlePress: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2,
+  },
+  homeSheetHandle: {
+    alignSelf: "center",
+    backgroundColor: "#606A80",
+  },
+  homeInfoTextFluid: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    includeFontPadding: false,
+  },
+  homeInfoAccent: {
+    fontFamily: INTER,
+    color: "#7A8BFB",
+    fontWeight: "900",
+  },
+  personaFluidFrame: {
+    alignSelf: "center",
+    height: "100%",
+    position: "relative",
+    overflow: "hidden",
+    backgroundColor: "#000",
+  },
+  personaArrow: {
+    position: "absolute",
+    zIndex: 3,
+  },
+  personaDotsFluid: {
+    position: "absolute",
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    zIndex: 3,
+  },
+  personaDotFluid: {
+    backgroundColor: "#D9D9D9",
+  },
+  personaTitleFluid: {
+    position: "absolute",
+    left: 10,
+    right: 10,
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "500",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  personaChoiceGridFluid: {
+    position: "absolute",
+    alignSelf: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  personaChoiceFluid: {
+    alignItems: "center",
+  },
+  personaChoiceCircleFluid: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  personaChoiceTextFluid: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "500",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  personaPersonImageFluid: {
+    borderColor: A,
+  },
+  personaPersonLabelFluid: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "500",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  personaNextFluid: {
+    position: "absolute",
+    alignSelf: "center",
+    backgroundColor: A,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    zIndex: 4,
+  },
+  personaNextTextFluid: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    includeFontPadding: false,
+  },
+  personaBottomPeekFluid: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderTopLeftRadius: 44,
+    borderTopRightRadius: 44,
+    borderWidth: 2,
+    borderColor: "#465670",
+    backgroundColor: CARD,
+    zIndex: 1,
+  },
+  personaPeekHandleFluid: {
+    alignSelf: "center",
+    backgroundColor: "#606A80",
+  },
+  callSetupFrame: {
+    alignSelf: "center",
+    height: "100%",
+    position: "relative",
+    overflow: "hidden",
+    backgroundColor: "#455269",
+  },
+  callSetupTopBar: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  callSetupBack: {
+    width: 42,
+    height: 42,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  callSetupTitle: {
+    flex: 1,
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callSetupTopSpacer: {
+    width: 42,
+    height: 42,
+  },
+  callSetupCheckRow: {
+    alignSelf: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  callSetupCheckItem: {
+    width: 130,
+    alignItems: "center",
+  },
+  callSetupCaption: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callSetupNotice: {
+    position: "absolute",
+    alignSelf: "center",
+    backgroundColor: "rgba(0,0,0,0.3)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  callSetupNoticeText: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callSetupNext: {
+    position: "absolute",
+    alignSelf: "center",
+    backgroundColor: A,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  callSetupNextText: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    includeFontPadding: false,
+  },
+  voiceLoadingFrame: {
+    alignSelf: "center",
+    height: "100%",
+    alignItems: "center",
+    backgroundColor: "#455269",
+  },
+  voiceLoadingTitle: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  voiceLoadingIcon: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+  },
+  voiceLoadingBarSlot: {
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+  voiceLoadingDot: {},
+  voiceLoadingBar: {},
+  voiceLoadingBubble: {
+    backgroundColor: "rgba(30,41,59,0.72)",
+    shadowColor: "#000",
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    elevation: 6,
+  },
+  voiceLoadingBubbleText: {
+    fontFamily: INTER,
+    color: "#D8DEE8",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
   loginScreen: {
     flex: 1,
     width: "100%",
@@ -2639,44 +3345,6 @@ const s = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
   },
-  locationScroll: {
-    flex: 1,
-    width: "100%",
-  },
-  locationScrollContent: {
-    flexGrow: 1,
-    alignItems: "center",
-  },
-  locationTitle: {
-    fontFamily: INTER,
-    color: "#fff",
-    fontSize: 23,
-    lineHeight: 34,
-    fontWeight: "400",
-    textAlign: "center",
-  },
-  locationBubbleStack: {
-    alignItems: "center",
-  },
-  locationBubble: {
-    fontFamily: INTER,
-    minHeight: 72,
-    borderRadius: 35,
-    backgroundColor: "rgba(0,0,0,0.3)",
-    color: "#fff",
-    fontSize: 14,
-    lineHeight: 20,
-    paddingHorizontal: 30,
-    paddingVertical: 19,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 7,
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    elevation: 2,
-  },
   completeFluidBg: {
     flex: 1,
     width: "100%",
@@ -2955,50 +3623,12 @@ const s = StyleSheet.create({
     lineHeight: 20,
     textAlign: "center",
   },
-  loadingText: {
-    fontFamily: INTER,
-    position: "absolute",
-    top: 208,
-    left: 0,
-    right: 0,
-    color: "#fff",
-    fontSize: 18,
-    lineHeight: 27,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  equalizer: {
-    position: "absolute",
-    top: 295,
-    left: 101,
-    width: 200,
-    height: 90,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  bar: {
-    width: 20,
-    borderRadius: 10,
-  },
-  loadingBubble: {
-    position: "absolute",
-    top: 521,
-    left: 20,
-    right: 20,
-    minHeight: 198,
-    borderRadius: 20,
-    backgroundColor: CARD,
-    paddingHorizontal: 24,
-    paddingVertical: 24,
-    justifyContent: "center",
-  },
   homeOutsideClose: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
-    bottom: 209,
+    zIndex: 1,
   },
   helpList: {
     position: "absolute",
@@ -3500,3 +4130,7 @@ const s = StyleSheet.create({
     fontWeight: "400",
   },
 });
+
+
+
+
