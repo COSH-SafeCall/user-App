@@ -1,4 +1,4 @@
-﻿import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   Image,
@@ -1276,20 +1276,90 @@ function CallSetupCheck({ go }: { go: (screen: Screen) => void }) {
 }
 
 function VoiceLoading({ go }: { go: (screen: Screen) => void }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const bubbleWidth = layoutWidth * (273 / W);
+
   return (
-    <Canvas bg="#4B5B73">
-      <Text style={s.loadingText}>가상 통화를 준비하고 있습니다...</Text>
-      <View style={s.equalizer}>
-        {[28, 47, 66, 38, 58].map((h, i) => (
-          <View key={i} style={[s.bar, { height: h, backgroundColor: i % 2 ? "#CF8EFF" : A }]} />
-        ))}
-      </View>
-      <View style={s.loadingBubble}>
-        <Text style={s.bubbleText}>
-          AI는 실제로 실행되지 않은 112 신고, 긴급 문자 발송 또는 위치 링크 전송이 완료되었다고 말하지 않습니다.{"\n\n"}
-          AI는 사용자를 대신해 위험 여부를 판단하거나 긴급 문자 발송 또는 112 신고를 실행하지 않습니다.{"\n\n"}
-          AI는 사용자에게 위험 인물과 대치, 추적 또는 촬영을 유도하지 않습니다.
+    <Canvas fluid bg="#455269">
+      <View style={[s.voiceLoadingFrame, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <Text
+          style={[
+            s.voiceLoadingTitle,
+            {
+              marginTop: layoutHeight * (147 / H),
+              fontSize: 20 * typeScale,
+              lineHeight: 30 * typeScale,
+            },
+          ]}
+        >
+          가상 통화를 준비하고 있습니다...
         </Text>
+
+        <View style={[s.voiceLoadingIcon, { marginTop: layoutHeight * (140 / H), width: layoutWidth * (95 / W), height: layoutWidth * (75 / W) }]}>
+          {[
+            { dot: "#C237D8", bar: "#FFFFFF", h: 36, dotTop: 0 },
+            { dot: "#46B9FF", bar: "#8D62C4", h: 75, dotTop: 18 },
+            { dot: null, bar: "#A977E8", h: 50, dotTop: 0 },
+            { dot: "#F8C51B", bar: "#3D34B5", h: 57, dotTop: 0 },
+            { dot: null, bar: "#9CE8F7", h: 27, dotTop: 0 },
+          ].map((item, index) => (
+            <View key={index} style={s.voiceLoadingBarSlot}>
+              {item.dot && (
+                <View
+                  style={[
+                    s.voiceLoadingDot,
+                    {
+                      backgroundColor: item.dot,
+                      marginTop: layoutWidth * (item.dotTop / W),
+                      width: layoutWidth * (10 / W),
+                      height: layoutWidth * (10 / W),
+                      borderRadius: layoutWidth * (5 / W),
+                    },
+                  ]}
+                />
+              )}
+              <View
+                style={[
+                  s.voiceLoadingBar,
+                  {
+                    backgroundColor: item.bar,
+                    height: layoutWidth * (item.h / W),
+                    width: layoutWidth * (10 / W),
+                    borderRadius: layoutWidth * (5 / W),
+                    marginTop: item.dot ? layoutWidth * (6 / W) : "auto",
+                  },
+                ]}
+              />
+            </View>
+          ))}
+        </View>
+
+        <View
+          style={[
+            s.voiceLoadingBubble,
+            {
+              width: bubbleWidth,
+              borderRadius: layoutWidth * (20 / W),
+              paddingHorizontal: layoutWidth * (28 / W),
+              paddingVertical: layoutWidth * (36 / W),
+              marginTop: layoutHeight * (135 / H),
+            },
+          ]}
+        >
+          <Text style={[s.voiceLoadingBubbleText, { fontSize: 12 * typeScale, lineHeight: 16 * typeScale }]}>
+            AI는 실제로 실행되지 않은 112 신고, 긴급 문자 발송 또는 위치 링크 전송이 완료되었다고 말하지 않습니다.{"\n\n"}
+            AI는 사용자를 대신해 위험 여부를 판단하거나 긴급 문자 발송 또는 112 신고를 실행하지 않습니다.{"\n\n"}
+            AI는 사용자에게 위험 인물과 대치, 추적 또는 촬영을 유도하지 않습니다.
+          </Text>
+        </View>
       </View>
       <Pressable style={s.fullTap} onPress={() => go("callRinging")} />
     </Canvas>
@@ -2657,6 +2727,49 @@ const s = StyleSheet.create({
     fontWeight: "400",
     includeFontPadding: false,
   },
+  voiceLoadingFrame: {
+    alignSelf: "center",
+    height: "100%",
+    alignItems: "center",
+    backgroundColor: "#455269",
+  },
+  voiceLoadingTitle: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  voiceLoadingIcon: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+  },
+  voiceLoadingBarSlot: {
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+  voiceLoadingDot: {},
+  voiceLoadingBar: {},
+  voiceLoadingBubble: {
+    backgroundColor: "rgba(30,41,59,0.72)",
+    shadowColor: "#000",
+    shadowOpacity: 0.18,
+    shadowRadius: 14,
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    elevation: 6,
+  },
+  voiceLoadingBubbleText: {
+    fontFamily: INTER,
+    color: "#D8DEE8",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
   loginScreen: {
     flex: 1,
     width: "100%",
@@ -3510,44 +3623,6 @@ const s = StyleSheet.create({
     lineHeight: 20,
     textAlign: "center",
   },
-  loadingText: {
-    fontFamily: INTER,
-    position: "absolute",
-    top: 208,
-    left: 0,
-    right: 0,
-    color: "#fff",
-    fontSize: 18,
-    lineHeight: 27,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  equalizer: {
-    position: "absolute",
-    top: 295,
-    left: 101,
-    width: 200,
-    height: 90,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  bar: {
-    width: 20,
-    borderRadius: 10,
-  },
-  loadingBubble: {
-    position: "absolute",
-    top: 521,
-    left: 20,
-    right: 20,
-    minHeight: 198,
-    borderRadius: 20,
-    backgroundColor: CARD,
-    paddingHorizontal: 24,
-    paddingVertical: 24,
-    justifyContent: "center",
-  },
   homeOutsideClose: {
     position: "absolute",
     top: 0,
@@ -4055,6 +4130,7 @@ const s = StyleSheet.create({
     fontWeight: "400",
   },
 });
+
 
 
 
