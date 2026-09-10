@@ -481,22 +481,96 @@ function Contacts({ go, modal, edit }: { go: (screen: Screen) => void; modal?: b
 }
 
 function Terms({ go }: { go: (screen: Screen) => void }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const buttonWidth = layoutWidth * (362 / W);
+  const buttonHeight = buttonWidth * (56 / 362);
+  const contentWidth = layoutWidth * (330 / W);
+  const titleWidth = layoutWidth * (362 / W);
+  const checkboxSize = layoutWidth * (20 / W);
+
   return (
-    <Canvas>
-      <Top title="" back={() => go("contacts")} />
-      <Text style={s.termsTitle}>개인정보 처리 및 AI 통화 동의</Text>
-      <View style={s.termsBody}>
-        {[1, 2, 3, 4].map((n) => (
-          <Text key={n} style={s.termsText}>
-            개인정보 처리 동의 내용입니다. 개인정보 처리 원칙, 이용 목적, 보관 기간과 파기 절차를 안내합니다. SafeCall은 긴급 연락과 AI 통화 시나리오 구성을 위해 필요한 최소 정보를 사용합니다.
+    <Canvas fluid>
+      <ScrollView
+        style={s.termsScroll}
+        contentContainerStyle={[
+          s.termsScrollContent,
+          {
+            minHeight: layoutHeight,
+            paddingTop: layoutHeight * (59 / H),
+            paddingBottom: layoutWidth * (20 / W),
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <Text
+          style={[
+            s.termsTitle,
+            {
+              width: titleWidth,
+              fontSize: 23 * typeScale,
+              lineHeight: 34 * typeScale,
+            },
+          ]}
+        >
+          개인정보 처리 및 AI 통화 동의
+        </Text>
+        <View style={[s.termsBody, { width: contentWidth, marginTop: layoutHeight * (65 / H) }]}>
+          {[1, 2, 3, 4].map((n) => (
+            <Text
+              key={n}
+              style={[
+                s.termsText,
+                {
+                  fontSize: 13 * typeScale,
+                  lineHeight: 16 * typeScale,
+                  marginBottom: layoutHeight * (50 / H),
+                },
+              ]}
+            >
+              개인정보 처리 동의 내용입니다. 개인정보 처리 원칙, 이용 목적, 보관 기간과 파기 절차를 안내합니다. SafeCall은 긴급 연락과 AI 통화 시나리오 구성을 위해 필요한 최소 정보를 사용합니다.
+            </Text>
+          ))}
+        </View>
+        <View style={[s.agree, { width: buttonWidth, marginBottom: layoutWidth * (24 / W), gap: layoutWidth * (14 / W) }]}>
+          <View
+            style={[
+              s.checkbox,
+              {
+                width: checkboxSize,
+                height: checkboxSize,
+                borderRadius: layoutWidth * (4 / W),
+              },
+            ]}
+          />
+          <Text style={[s.agreeText, { fontSize: 16 * typeScale, lineHeight: 24 * typeScale }]}>
+            위 사항에 동의하십니까?
           </Text>
-        ))}
-      </View>
-      <View style={s.agree}>
-        <View style={s.checkbox} />
-        <Text style={s.agreeText}>위 사항에 동의하십니까?</Text>
-      </View>
-      <Bottom label="다음" onPress={() => go("permissionBasic")} />
+        </View>
+        <Pressable
+          style={[
+            s.termsNextButton,
+            {
+              width: buttonWidth,
+              height: buttonHeight,
+              borderRadius: layoutWidth * (20 / W),
+            },
+          ]}
+          onPress={() => go("permissionBasic")}
+        >
+          <Text style={[s.bottomText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+            다음
+          </Text>
+        </Pressable>
+      </ScrollView>
     </Canvas>
   );
 }
@@ -1905,6 +1979,14 @@ const s = StyleSheet.create({
     color: "#fff",
     fontWeight: "400",
   },
+  termsScroll: {
+    flex: 1,
+    width: "100%",
+  },
+  termsScrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+  },
   top: {
     position: "absolute",
     top: 20,
@@ -1924,36 +2006,25 @@ const s = StyleSheet.create({
   },
   termsTitle: {
     fontFamily: INTER,
-    position: "absolute",
-    top: 59,
-    left: 34,
-    right: 34,
     color: "#fff",
-    fontSize: 24,
-    lineHeight: 36,
+    fontSize: 23,
+    lineHeight: 34,
     fontWeight: "400",
     textAlign: "center",
   },
   termsBody: {
-    position: "absolute",
-    top: 145,
-    left: 36,
-    right: 36,
+    alignSelf: "center",
   },
   termsText: {
     fontFamily: INTER,
     color: "#fff",
     fontSize: 13,
     lineHeight: 16,
-    marginBottom: 34,
   },
   agree: {
-    position: "absolute",
-    left: 30,
-    bottom: 91,
+    marginTop: "auto",
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
   },
   checkbox: {
     width: 20,
@@ -1966,8 +2037,14 @@ const s = StyleSheet.create({
   agreeText: {
     fontFamily: INTER,
     color: "#fff",
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  termsNextButton: {
+    backgroundColor: A,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
   },
   permTitleBasic: {
     fontFamily: INTER,
