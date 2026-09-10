@@ -38,7 +38,6 @@ const asset = {
   kakao: require("./assets/screen-reference/Login - Onboarding-1.png"),
   sosSystem: require("./assets/screen-reference/Login - Onboarding-7.png"),
   callPermission: require("./assets/screen-reference/Login - Onboarding-8.png"),
-  permissionToast: require("./assets/screen-reference/Login - Onboarding-9.png"),
   completeGradient: require("./assets/figma/onboarding-complete-gradient.png"),
   father: require("./assets/figma/raw-image-1.jpeg"),
   mother: require("./assets/figma/raw-image-3.jpeg"),
@@ -65,7 +64,7 @@ export default function App() {
   const go = (nextScreen: Screen) => setScreen(nextScreen);
   const next = () => go(order[(order.indexOf(screen) + 1) % order.length]);
 
-  const imageOnly = ["kakao", "sosSystem", "callPermission", "permissionToast"].includes(screen);
+  const imageOnly = ["kakao", "sosSystem", "callPermission"].includes(screen);
 
   return (
     <View style={s.root}>
@@ -82,7 +81,7 @@ export default function App() {
       {screen === "permissionSos" && <PermissionIntro go={go} sos />}
       {screen === "sosSystem" && <ImageScreen src={asset.sosSystem} onPress={() => go("complete")} />}
       {screen === "callPermission" && <ImageScreen src={asset.callPermission} onPress={() => go("permissionSos")} />}
-      {screen === "permissionToast" && <ImageScreen src={asset.permissionToast} onPress={() => go("profile")} />}
+      {screen === "permissionToast" && <Profile go={go} kakaoFailure />}
       {screen === "locationGuide" && <LocationGuide go={go} />}
       {screen === "complete" && <Complete go={go} />}
       {screen === "personaUse" && <PersonaUse go={go} />}
@@ -201,7 +200,7 @@ function Login({ go }: { go: (screen: Screen) => void }) {
   );
 }
 
-function Profile({ go, edit }: { go: (screen: Screen) => void; edit?: boolean }) {
+function Profile({ go, edit, kakaoFailure }: { go: (screen: Screen) => void; edit?: boolean; kakaoFailure?: boolean }) {
   const { width, height } = useWindowDimensions();
   const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
   const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
@@ -299,6 +298,37 @@ function Profile({ go, edit }: { go: (screen: Screen) => void; edit?: boolean })
             </Text>
           </Pressable>
         </ScrollView>
+        {kakaoFailure && (
+          <View style={s.kakaoFailureLayer}>
+            <View style={s.kakaoFailureDim} />
+            <View
+              style={[
+                s.kakaoFailureModal,
+                {
+                  width: layoutWidth * (316 / W),
+                  minHeight: layoutWidth * (133 / W),
+                  borderRadius: layoutWidth * (20 / W),
+                  paddingTop: layoutWidth * (29 / W),
+                  paddingHorizontal: layoutWidth * (23 / W),
+                  paddingBottom: layoutWidth * (18 / W),
+                  transform: [{ translateY: -layoutHeight * (22 / H) }],
+                },
+              ]}
+            >
+              <Text style={[s.kakaoFailureTitle, { fontSize: 13 * typeScale, lineHeight: 19.5 * typeScale }]}>
+                카카오 로그인에 실패하였습니다.
+              </Text>
+              <Text style={[s.kakaoFailureBody, { fontSize: 10 * typeScale, lineHeight: 15 * typeScale }]}>
+                네트워크 연결을 확인하시고 다시 시도해주세요.
+              </Text>
+              <Pressable style={s.kakaoFailureConfirm} onPress={() => go("profile")}>
+                <Text style={[s.kakaoFailureConfirmText, { fontSize: 12 * typeScale, lineHeight: 18 * typeScale }]}>
+                  확인
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
       </Canvas>
     );
   }
@@ -1998,6 +2028,41 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
+  },
+  kakaoFailureLayer: {
+    ...fill,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 30,
+  },
+  kakaoFailureDim: {
+    ...fill,
+    backgroundColor: "rgba(0,0,0,0.58)",
+  },
+  kakaoFailureModal: {
+    backgroundColor: CARD,
+  },
+  kakaoFailureTitle: {
+    fontFamily: INTER,
+    color: "#fff",
+    fontWeight: "700",
+  },
+  kakaoFailureBody: {
+    fontFamily: INTER,
+    color: "#B7BECA",
+    fontWeight: "300",
+    marginTop: 12,
+  },
+  kakaoFailureConfirm: {
+    alignSelf: "flex-end",
+    marginTop: 26,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+  },
+  kakaoFailureConfirmText: {
+    fontFamily: INTER,
+    color: A,
+    fontWeight: "400",
   },
   loginScreen: {
     flex: 1,
