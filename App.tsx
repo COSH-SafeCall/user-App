@@ -1688,30 +1688,160 @@ function CallRinging({ go }: { go: (screen: Screen) => void }) {
 }
 
 function Call({ go }: { go: (screen: Screen) => void }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1));
+  const panelWidth = 318 * typeScale;
+  const panelHeight = 324 * typeScale;
+  const panelHorizontalPadding = 42 * typeScale;
+  const actionColumnGap = 20 * typeScale;
+  const actionItemWidth = (panelWidth - panelHorizontalPadding * 2 - actionColumnGap * 2) / 3;
+  const endSize = 60 * typeScale;
+  const callActions: Array<{ icon: IconName; label: string }> = [
+    { icon: "message", label: "녹음" },
+    { icon: "video", label: "영상통화" },
+    { icon: "bluetooth", label: "블루투스" },
+    { icon: "volume-high", label: "스피커" },
+    { icon: "microphone-off", label: "내 소리 차단" },
+    { icon: "dialpad", label: "키패드" },
+  ];
+
   return (
-    <Canvas bg="#050509">
-      <View style={s.callGradientBase} />
-      <View style={s.callGradientBottom} />
-      <View style={s.callShadeDark} />
-      <Text style={s.callTime}>00:00</Text>
-      <Text style={s.callName}>아빠</Text>
-      <Text style={s.callHint}>화면 녹화는 종료할 때까지 유지됩니다.</Text>
-      <View style={s.callPad}>
-        <Pad icon="message" label="녹음" />
-        <Pad icon="video" label="영상 통화" />
-        <Pad icon="bluetooth" label="블루투스" />
-        <Pad icon="volume-high" label="스피커" />
-        <Pad icon="microphone-off" label="내 소리 차단" />
-        <Pad icon="dialpad" label="키패드" />
-        <Pressable style={s.callEnd} onPress={() => go("home")}>
-          <MaterialCommunityIcons name="phone-hangup" size={35} color="#fff" />
+    <Canvas fluid bg="#000">
+      <View style={[s.callRingingFullGradient, callRingingGradient]} />
+      <View style={[s.callActiveFrame, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <Text
+          style={[
+            s.callActiveTime,
+            {
+              marginTop: layoutHeight * (113 / H),
+              fontSize: 16 * typeScale,
+              lineHeight: 24 * typeScale,
+            },
+          ]}
+        >
+          00:00
+        </Text>
+        <Text
+          style={[
+            s.callActiveName,
+            {
+              marginTop: layoutHeight * (43 / H),
+              fontSize: 36 * typeScale,
+              lineHeight: 54 * typeScale,
+            },
+          ]}
+        >
+          아빠
+        </Text>
+
+        <Text
+          style={[
+            s.callActiveHint,
+            {
+              marginTop: layoutHeight * (175 / H),
+              fontSize: 14 * typeScale,
+              lineHeight: 21 * typeScale,
+            },
+          ]}
+        >
+          미리 녹음된 음성을 재생합니다.
+        </Text>
+        <Pressable
+          style={[
+            s.callAlternativeButton,
+            {
+              marginTop: 12 * typeScale,
+              width: 98 * typeScale,
+              height: 31 * typeScale,
+              borderRadius: 18 * typeScale,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              s.callAlternativeText,
+              {
+                fontSize: 13 * typeScale,
+                lineHeight: 19.5 * typeScale,
+              },
+            ]}
+          >
+            대체통화
+          </Text>
         </Pressable>
+
+        <View
+          style={[
+            s.callActivePanel,
+            {
+              marginTop: 15 * typeScale,
+              width: panelWidth,
+              minHeight: panelHeight,
+              borderRadius: 28 * typeScale,
+              paddingTop: 53 * typeScale,
+              paddingHorizontal: panelHorizontalPadding,
+              paddingBottom: 28 * typeScale,
+            },
+          ]}
+        >
+          <View style={[s.callActiveGrid, { rowGap: 28 * typeScale }]}>
+            {callActions.map((item) => (
+              <View key={item.label} style={[s.callActiveItem, { width: actionItemWidth }]}>
+                <MaterialCommunityIcons name={item.icon} size={34 * typeScale} color="#FFFFFF" />
+                <Text
+                  style={[
+                    s.callActiveItemText,
+                    {
+                      marginTop: 9 * typeScale,
+                      fontSize: 12 * typeScale,
+                      lineHeight: 18 * typeScale,
+                    },
+                  ]}
+                >
+                  {item.label}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <Pressable
+            style={[
+              s.callActiveEnd,
+              {
+                width: endSize,
+                height: endSize,
+                borderRadius: endSize / 2,
+                marginTop: 39 * typeScale,
+              },
+            ]}
+            onPress={() => go("home")}
+          >
+            <MaterialCommunityIcons name="phone-hangup" size={35 * typeScale} color="#fff" />
+          </Pressable>
+        </View>
+
+        <Text
+          style={[
+            s.callActiveBottomNotice,
+            {
+              marginTop: 10 * typeScale,
+              fontSize: 10 * typeScale,
+              lineHeight: 12 * typeScale,
+            },
+          ]}
+        >
+          통화 종료를 제외한 나머지 기능은 실제 제공되는 기능이 아닙니다.
+        </Text>
       </View>
-      <Text style={s.callBottomNotice}>통화 종료를 제외한 나머지 기능은 실제 제공되는 기능이 아닙니다.</Text>
     </Canvas>
   );
 }
-
 function Setting({ go, dialog }: { go: (screen: Screen) => void; dialog?: boolean }) {
   return (
     <Canvas>
@@ -2935,6 +3065,80 @@ const s = StyleSheet.create({
   callRingingActionInner: {
     alignItems: "center",
     justifyContent: "center",
+  },
+  callActiveFrame: {
+    alignSelf: "center",
+    height: "100%",
+    alignItems: "center",
+    overflow: "hidden",
+    backgroundColor: "transparent",
+  },
+  callActiveTime: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callActiveName: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callActiveHint: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callAlternativeButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "rgba(255,255,255,0.7)",
+    backgroundColor: "rgba(255,255,255,0.18)",
+  },
+  callAlternativeText: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "700",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callActivePanel: {
+    backgroundColor: "rgba(117,121,148,0.72)",
+    alignItems: "center",
+  },
+  callActiveGrid: {
+    width: "100%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  callActiveItem: {
+    alignItems: "center",
+  },
+  callActiveItemText: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  callActiveEnd: {
+    backgroundColor: "#EF4444",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  callActiveBottomNotice: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
   },
   loginScreen: {
     flex: 1,
