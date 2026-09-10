@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "SafeCall",
+    "slug": "safecall-user-app",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "platforms": ["android", "web"],
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": ["assets/**/*"],
+    "android": {
+      "package": "com.cosh.safecall"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
