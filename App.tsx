@@ -2,6 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   Image,
+  ImageBackground,
   PanResponder,
   Pressable,
   ScrollView,
@@ -772,6 +773,21 @@ function PermissionIntro({ go, sos }: { go: (screen: Screen) => void; sos: boole
 }
 
 function LocationGuide({ go }: { go: (screen: Screen) => void }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const contentWidth = layoutWidth * (332 / W);
+  const buttonAreaWidth = layoutWidth * (362 / W);
+  const buttonGap = layoutWidth * (10 / W);
+  const buttonWidth = (buttonAreaWidth - buttonGap) / 2;
+  const buttonHeight = buttonAreaWidth * (56 / 362);
+
   const text = [
     "하단 볼륨 버튼을 3초 이상 눌러 긴급 메시지 전송 기능을 사용할 수 있습니다.",
     "전송이 정상적으로 이뤄지고 나면 사용자에게도 긴급 메시지 발송 성공 메시지가 도착합니다.",
@@ -780,39 +796,183 @@ function LocationGuide({ go }: { go: (screen: Screen) => void }) {
     "짧은 진동이 2번 울렸다면 메시지가 잘 전달된 것입니다."
   ];
   return (
-    <Canvas bg={A}>
-      <Text style={s.locationTitle}>내 위치를 보호자에게 알려보세요.</Text>
-      {text.map((v, i) => (
-        <Text key={v} style={[s.locationBubble, { top: [226, 314, 421, 519, 633][i] }]}>
-          {v}
+    <Canvas fluid bg={A}>
+      <ImageBackground source={asset.completeGradient} style={s.completeFluidBg} resizeMode="cover">
+        <ScrollView
+        style={s.locationScroll}
+        contentContainerStyle={[
+          s.locationScrollContent,
+          {
+            minHeight: layoutHeight,
+            paddingTop: layoutWidth * (110 / W),
+            paddingBottom: layoutWidth * (20 / W),
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <Text
+          style={[
+            s.locationTitle,
+            {
+              fontSize: 23 * typeScale,
+              lineHeight: 34 * typeScale,
+            },
+          ]}
+        >
+          내 위치를 보호자에게 알려보세요.
         </Text>
-      ))}
-      <View style={s.completeButtonRow}>
-        <Pressable style={s.completeSkip} onPress={() => go("home")}>
-          <Text style={s.completeSkipText}>건너뛰기</Text>
-        </Pressable>
-        <Pressable style={s.completeOk} onPress={() => go("home")}>
-          <Text style={s.completeOkText}>확인</Text>
-        </Pressable>
-      </View>
+
+        <View style={[s.locationBubbleStack, { marginTop: layoutWidth * (72 / W), gap: layoutWidth * (18 / W) }]}>
+          {text.map((v) => (
+            <Text
+              key={v}
+              style={[
+                s.locationBubble,
+                {
+                  width: contentWidth,
+                  minHeight: layoutWidth * (72 / W),
+                  borderRadius: layoutWidth * (35 / W),
+                  paddingHorizontal: layoutWidth * (30 / W),
+                  paddingVertical: layoutWidth * (18 / W),
+                  fontSize: 14 * typeScale,
+                  lineHeight: 20 * typeScale,
+                },
+              ]}
+            >
+              {v}
+            </Text>
+          ))}
+        </View>
+
+        <View style={[s.completeButtonRow, { width: buttonAreaWidth, height: buttonHeight, gap: buttonGap }]}>
+          <Pressable
+            style={[
+              s.completeSkip,
+              {
+                width: buttonWidth,
+                height: buttonHeight,
+                borderRadius: layoutWidth * (6 / W),
+              },
+            ]}
+            onPress={() => go("home")}
+          >
+            <Text style={[s.completeSkipText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+              건너뛰기
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[
+              s.completeOk,
+              {
+                width: buttonWidth,
+                height: buttonHeight,
+                borderRadius: layoutWidth * (6 / W),
+              },
+            ]}
+            onPress={() => go("home")}
+          >
+            <Text style={[s.completeOkText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+              확인
+            </Text>
+          </Pressable>
+        </View>
+        </ScrollView>
+      </ImageBackground>
     </Canvas>
   );
 }
 
 function Complete({ go }: { go: (screen: Screen) => void }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1.15));
+  const contentWidth = layoutWidth * (362 / W);
+  const buttonGap = layoutWidth * (10 / W);
+  const buttonWidth = (contentWidth - buttonGap) / 2;
+  const buttonHeight = contentWidth * (56 / 362);
+
   return (
-    <Canvas bg={A}>
-      <Image source={asset.completeGradient} style={s.completeBg} resizeMode="cover" />
-      <Text style={s.completeTitle}>설정이 모두 완료되었습니다.</Text>
-      <Text style={s.completeSub}>긴급 메시지 설정이 잘 완료되었는지 테스트해볼까요?</Text>
-      <View style={s.completeButtonRow}>
-        <Pressable style={s.completeSkip} onPress={() => go("locationGuide")}>
-          <Text style={s.completeSkipText}>건너뛰기</Text>
-        </Pressable>
-        <Pressable style={s.completeOk} onPress={() => go("locationGuide")}>
-          <Text style={s.completeOkText}>확인</Text>
-        </Pressable>
-      </View>
+    <Canvas fluid bg={A}>
+      <ImageBackground source={asset.completeGradient} style={s.completeFluidBg} resizeMode="cover">
+        <ScrollView
+          style={s.completeScroll}
+          contentContainerStyle={[
+            s.completeScrollContent,
+            {
+              minHeight: layoutHeight,
+              paddingBottom: layoutWidth * (20 / W),
+            },
+          ]}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          <View style={[s.completeTextBlock, { marginTop: layoutHeight * (379 / H) }]}>
+            <Text
+              style={[
+                s.completeTitle,
+                {
+                  fontSize: 23 * typeScale,
+                  lineHeight: 34 * typeScale,
+                },
+              ]}
+            >
+              설정이 모두 완료되었습니다.
+            </Text>
+            <Text
+              style={[
+                s.completeSub,
+                {
+                  marginTop: layoutWidth * (24 / W),
+                  fontSize: 13 * typeScale,
+                  lineHeight: 20 * typeScale,
+                },
+              ]}
+            >
+              긴급 메시지 설정이 잘 완료되었는지 테스트해볼까요?
+            </Text>
+          </View>
+
+          <View style={[s.completeButtonRow, { width: contentWidth, height: buttonHeight, gap: buttonGap }]}>
+            <Pressable
+              style={[
+                s.completeSkip,
+                {
+                  width: buttonWidth,
+                  height: buttonHeight,
+                  borderRadius: layoutWidth * (6 / W),
+                },
+              ]}
+              onPress={() => go("locationGuide")}
+            >
+              <Text style={[s.completeSkipText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+                건너뛰기
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[
+                s.completeOk,
+                {
+                  width: buttonWidth,
+                  height: buttonHeight,
+                  borderRadius: layoutWidth * (6 / W),
+                },
+              ]}
+              onPress={() => go("locationGuide")}
+            >
+              <Text style={[s.completeOkText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+                확인
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </ImageBackground>
     </Canvas>
   );
 }
@@ -2414,69 +2574,80 @@ const s = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
   },
+  locationScroll: {
+    flex: 1,
+    width: "100%",
+  },
+  locationScrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+  },
   locationTitle: {
     fontFamily: INTER,
-    position: "absolute",
-    top: 87,
-    left: 32,
-    right: 32,
     color: "#fff",
-    fontSize: 24,
-    lineHeight: 36,
+    fontSize: 23,
+    lineHeight: 34,
     fontWeight: "400",
+    textAlign: "center",
+  },
+  locationBubbleStack: {
+    alignItems: "center",
   },
   locationBubble: {
     fontFamily: INTER,
-    position: "absolute",
-    left: 55,
-    width: 292,
     minHeight: 72,
-    borderRadius: 26,
-    backgroundColor: "rgba(37,35,91,0.58)",
+    borderRadius: 35,
+    backgroundColor: "rgba(0,0,0,0.3)",
     color: "#fff",
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 14,
+    lineHeight: 20,
     paddingHorizontal: 30,
     paddingVertical: 19,
     shadowColor: "#000",
-    shadowOpacity: 0.12,
-    shadowRadius: 13,
+    shadowOpacity: 0.05,
+    shadowRadius: 7,
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 10,
     },
+    elevation: 2,
   },
-  completeBg: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    width: 402,
-    height: 874,
+  completeFluidBg: {
+    flex: 1,
+    width: "100%",
+  },
+  completeScroll: {
+    flex: 1,
+    width: "100%",
+  },
+  completeScrollContent: {
+    flexGrow: 1,
+    alignItems: "center",
+  },
+  completeTextBlock: {
+    alignItems: "center",
   },
   completeTitle: {
     fontFamily: INTER,
-    position: "absolute",
-    top: 379,
-    left: 0,
-    right: 0,
     color: "#fff",
-    fontSize: 24,
-    lineHeight: 36,
+    fontSize: 23,
+    lineHeight: 34,
     fontWeight: "400",
     textAlign: "center",
   },
   completeSub: {
     fontFamily: INTER,
-    position: "absolute",
-    top: 435,
-    left: 0,
-    right: 0,
     color: "#fff",
     fontSize: 13,
     lineHeight: 20,
+    fontWeight: "400",
     textAlign: "center",
   },
   completeButtonRow: {
+    marginTop: "auto",
+    flexDirection: "row",
+  },
+  completeButtonRowFixed: {
     position: "absolute",
     left: 20,
     right: 20,
@@ -2486,17 +2657,11 @@ const s = StyleSheet.create({
     gap: 10,
   },
   completeSkip: {
-    width: 176,
-    height: 56,
-    borderRadius: 6,
-    backgroundColor: "#25235B",
+    backgroundColor: "rgba(0,0,0,0.3)",
     alignItems: "center",
     justifyContent: "center",
   },
   completeOk: {
-    width: 176,
-    height: 56,
-    borderRadius: 6,
     backgroundColor: "#F2F2F2",
     alignItems: "center",
     justifyContent: "center",
