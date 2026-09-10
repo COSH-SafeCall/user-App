@@ -51,7 +51,7 @@ const MIN_SCREEN_HEIGHT = 568;
 const A = "#6366F1"; // Primary Color
 const CARD = "#202B3D";
 const MUTED = "#9CA3AF";
-const Y = "#FFF300";
+const Y = "#FFE100";
 const INTER = "Inter";
 
 
@@ -590,22 +590,107 @@ function PermissionIntro({ go, sos }: { go: (screen: Screen) => void; sos: boole
   const titleWidth = layoutWidth * (332 / W);
   const contentWidth = layoutWidth * (332 / W);
   const iconSize = layoutWidth * (48 / W);
+  const sosTextWidth = layoutWidth * (258 / W);
 
   if (sos) {
     return (
-      <Canvas>
-        <Text style={s.permTitleSos}>SafeCall 이용을 위해 아래의 기능이 켜져 있는지 확인해주세요.</Text>
-        <View style={[s.permCircle, { top: 235 }]}>
-          <MaterialCommunityIcons name="microphone" size={24} color="#fff" />
-        </View>
-        <View style={s.sosTextBlock}>
-          <Text style={s.permStrong}>긴급 SOS</Text>
-          <Text style={s.permGray}>앱 사용중이나 AI 안심 통화 서비스를 이용 중에{"\n"}긴급한 상황 발생 시 안드로이드 시스템에 등록된{"\n"}긴급번호로 전화를 연결하는 데 필요한 기능입니다.</Text>
-          <Text style={s.permYellow}>긴급 SOS 기능은 SafeCall에서 제공하는 기능이{"\n"}아닌, 안드로이드 시스템 자체에서 제공하는 기능{"\n"}입니다.</Text>
-        </View>
-        <Text style={s.sosPath}>설정 &gt; 안전 및 긴급 &gt; 긴급 SOS 에서 확인할 수 있습니다.</Text>
-        <Text style={s.sosWarning}>실제 119나 112에 신고가 갈 수 있으므로 신중한 사용을 권장합니다.</Text>
-        <Bottom label="다음" onPress={() => go("sosSystem")} />
+      <Canvas fluid>
+        <ScrollView
+          style={s.permScroll}
+          contentContainerStyle={[
+            s.permScrollContent,
+            {
+              minHeight: layoutHeight,
+              paddingTop: layoutHeight * (61 / H),
+              paddingBottom: layoutWidth * (20 / W),
+            },
+          ]}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          <Text
+            style={[
+              s.permTitleFluid,
+              {
+                width: titleWidth,
+                fontSize: 23 * typeScale,
+                lineHeight: 29 * typeScale,
+              },
+            ]}
+          >
+            SafeCall 이용을 위해 아래의 기능이 켜져 있는지 확인해주세요.
+          </Text>
+
+          <View
+            style={[
+              s.sosContentFluid,
+              {
+                width: contentWidth,
+                marginTop: layoutHeight * (93 / H),
+              },
+            ]}
+          >
+            <View
+              style={[
+                s.permFluidIcon,
+                {
+                  width: iconSize,
+                  height: iconSize,
+                  borderRadius: iconSize / 2,
+                  marginTop: layoutHeight * (56 / H),
+                  marginRight: iconSize * (32 / 48),
+                },
+              ]}
+            >
+              <MaterialCommunityIcons name="alarm-light" size={24 * typeScale} color="#fff" />
+            </View>
+            <View style={[s.permFluidTextCol, { maxWidth: sosTextWidth }]}>
+              <Text style={[s.permFluidName, { fontSize: 16 * typeScale, lineHeight: 24 * typeScale }]}>
+                긴급 SOS
+              </Text>
+              <Text style={[s.permFluidBody, { fontSize: 12 * typeScale, lineHeight: 18 * typeScale }]}>
+                앱 사용중이나 AI 안심 통화 서비스를 이용 중에 긴급한 상황 발생 시 안드로이드 시스템에 등록된 긴급번호로 전화를 연결하는 데 필요한 기능입니다.
+              </Text>
+              <Text style={[s.permFluidWarning, { fontSize: 12 * typeScale, lineHeight: 18 * typeScale }]}>
+                긴급 SOS 기능은 SafeCall에서 제공하는 기능이 아닌, 안드로이드 시스템 자체에서 제공하는 기능입니다.
+              </Text>
+            </View>
+          </View>
+
+          <View style={[s.sosFooterFluid, { width: contentWidth, marginTop: layoutHeight * (62 / H) }]}>
+            <Text style={[s.sosSettingFluid, { fontSize: 13 * typeScale, lineHeight: 19.5 * typeScale }]}>
+              설정 &gt; 안전 및 긴급 &gt; 긴급 SOS 에서 확인할 수 있습니다.
+            </Text>
+            <Text
+              style={[
+                s.sosCautionFluid,
+                {
+                  marginTop: layoutHeight * (12 / H),
+                  fontSize: 13 * typeScale,
+                  lineHeight: 19.5 * typeScale,
+                },
+              ]}
+            >
+              실제 119나 112에 신고가 갈 수 있으므로, SafeCall은 112 긴급 호출 기능을 제어할 수 없으므로 신중한 사용을 권장합니다.
+            </Text>
+          </View>
+
+          <Pressable
+            style={[
+              s.permNextButton,
+              {
+                width: buttonWidth,
+                height: buttonHeight,
+                borderRadius: layoutWidth * (20 / W),
+              },
+            ]}
+            onPress={() => go("sosSystem")}
+          >
+            <Text style={[s.bottomText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale, fontWeight: "400" }]}>
+              다음
+            </Text>
+          </Pressable>
+        </ScrollView>
       </Canvas>
     );
   }
@@ -677,7 +762,7 @@ function PermissionIntro({ go, sos }: { go: (screen: Screen) => void; sos: boole
           ]}
           onPress={() => go("permissionSos")}
         >
-          <Text style={[s.bottomText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale }]}>
+          <Text style={[s.bottomText, { fontSize: 20 * typeScale, lineHeight: 30 * typeScale, fontWeight: "400" }]}>
             다음
           </Text>
         </Pressable>
@@ -2214,6 +2299,27 @@ const s = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     fontWeight: "400",
+  },
+  sosContentFluid: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  sosFooterFluid: {
+    alignSelf: "center",
+  },
+  sosSettingFluid: {
+    fontFamily: INTER,
+    color: "#fff",
+    fontSize: 13,
+    lineHeight: 19.5,
+    fontWeight: "400",
+  },
+  sosCautionFluid: {
+    fontFamily: INTER,
+    color: Y,
+    fontSize: 13,
+    lineHeight: 19.5,
+    fontWeight: "700",
   },
   permNextButton: {
     marginTop: "auto",
