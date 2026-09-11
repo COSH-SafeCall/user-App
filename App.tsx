@@ -1538,31 +1538,66 @@ function Home({ go }: { go: (screen: Screen) => void }) {
 }
 
 function Help({ go, open }: { go: (screen: Screen) => void; open?: boolean }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.88, Math.min(layoutWidth / W, 1));
+  const listWidth = Math.min(layoutWidth - 58 * typeScale, 344 * typeScale);
   const qs = [
-    "SOS 기능은 다시 끄고 싶어요.",
+    "SOS 기능을 다시 켜고 싶어요.",
     "긴급 연락처를 수정하고 싶어요.",
     "긴급 연락처를 입력하지 않아도 괜찮은가요?",
     "가상 전화를 소리 말고 진동이나 무음으로 받고 싶어요.",
-    "유료 통화가 될 수 있나요?"
+    "음량 조절이 필수적인가요?",
   ];
+
   return (
-    <Canvas>
-      <Top title="도움말" back={() => go("home")} />
-      <View style={s.helpList}>
-        {qs.map((q, i) => (
-          <Pressable key={q} style={[s.helpRow, open && i === 0 && s.helpOpen]} onPress={() => go("helpOpen")}>
-            <Text style={s.helpQ}>Q. {q}</Text>
-            <MaterialCommunityIcons name={open && i === 0 ? "chevron-up" : "chevron-right"} size={18} color="#fff" />
-            {open && i === 0 && (
-              <Text style={s.helpA}>시스템 설정 &gt; 안전 및 긴급 &gt; 긴급 SOS에서 해당 기능을 끌 수 있습니다.</Text>
-            )}
+    <Canvas fluid bg="#000">
+      <View style={[s.helpScreen, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <View style={[s.soundSettingHeader, { marginTop: 24 * typeScale, paddingHorizontal: 20 * typeScale }]}>
+          <Pressable style={s.settingBackButton} onPress={() => go("setting")}>
+            <MaterialCommunityIcons name="chevron-left" size={24 * typeScale} color="#fff" />
           </Pressable>
-        ))}
+          <Text style={[s.soundSettingTitle, { fontSize: 16 * typeScale, lineHeight: 19 * typeScale }]}>도움말</Text>
+        </View>
+
+        <View style={[s.helpList, { width: listWidth, marginTop: 34 * typeScale }]}>
+          {qs.map((q, i) => (
+            <Pressable
+              key={q}
+              style={[
+                s.helpRow,
+                {
+                  minHeight: open && i === 0 ? 118 * typeScale : 50 * typeScale,
+                  paddingVertical: 14 * typeScale,
+                },
+                open && i === 0 && s.helpOpen,
+              ]}
+              onPress={() => go("helpOpen")}
+            >
+              <View style={s.helpQuestionLine}>
+                <Text style={[s.helpQ, { fontSize: 12 * typeScale, lineHeight: 15 * typeScale }]}>
+                  <Text style={s.helpQMark}>Q.</Text> {q}
+                </Text>
+                <MaterialCommunityIcons name={open && i === 0 ? "chevron-up" : "chevron-right"} size={24 * typeScale} color="#fff" />
+              </View>
+              {open && i === 0 && (
+                <Text style={[s.helpA, { marginTop: 14 * typeScale, fontSize: 10 * typeScale, lineHeight: 16 * typeScale }]}>
+                  시스템 설정 &gt; 안전 및 긴급 &gt; 긴급 SOS에서 해당 기능을 끌 수 있습니다.
+                </Text>
+              )}
+            </Pressable>
+          ))}
+        </View>
       </View>
     </Canvas>
   );
 }
-
 function CallRinging({ go }: { go: (screen: Screen) => void }) {
   return (
     <Canvas bg="#252839">
@@ -1610,90 +1645,304 @@ function Call({ go }: { go: (screen: Screen) => void }) {
 }
 
 function Setting({ go, dialog }: { go: (screen: Screen) => void; dialog?: boolean }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.88, Math.min(layoutWidth / W, 1));
+  const contentWidth = Math.min(layoutWidth - 46 * typeScale, 356 * typeScale);
+  const settingCardRadius = 17 * typeScale;
+  const dialogWidth = Math.min(layoutWidth - 68 * typeScale, 280 * typeScale);
+  const dialogButtonGap = 6 * typeScale;
+  const dialogButtonWidth = (dialogWidth - 30 * typeScale - dialogButtonGap) / 2;
+
   return (
-    <Canvas>
-      <Top title="설정" back={() => go("home")} />
-      <View style={dialog ? s.dim : undefined}>
-        <View style={s.settingProfile}>
-          <View style={s.settingAvatar}>
-            <MaterialCommunityIcons name="account" size={41} color="#fff" />
+    <Canvas fluid bg="#000">
+      <View style={[s.settingScreen, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <View style={[dialog && s.dim]}>
+          <View style={[s.settingHeaderFluid, { marginTop: 24 * typeScale, paddingHorizontal: 20 * typeScale }]}>
+            <Pressable style={s.settingBackButton} onPress={() => go("home")}>
+              <MaterialCommunityIcons name="chevron-left" size={24 * typeScale} color="#fff" />
+            </Pressable>
+            <Text style={[s.settingHeaderTitle, { fontSize: 16 * typeScale, lineHeight: 19 * typeScale }]}>설정</Text>
           </View>
-          <View>
-            <Text style={s.settingName}>이름</Text>
-            <Text style={s.settingSub}>카카오 로그인</Text>
+
+          <View
+            style={[
+              s.settingProfileFluid,
+              {
+                width: contentWidth,
+                marginTop: 26 * typeScale,
+              },
+            ]}
+          >
+            <View
+              style={[
+                s.settingAvatar,
+                {
+                  width: 60 * typeScale,
+                  height: 60 * typeScale,
+                  borderRadius: 30 * typeScale,
+                  marginRight: 20 * typeScale,
+                },
+              ]}
+            >
+              <MaterialCommunityIcons name="account" size={41 * typeScale} color="#fff" />
+            </View>
+            <View>
+              <Text style={[s.settingName, { fontSize: 16 * typeScale, lineHeight: 19 * typeScale }]}>이름</Text>
+              <Text style={[s.settingSub, { marginTop: 8 * typeScale, fontSize: 11 * typeScale, lineHeight: 13 * typeScale }]}>카카오 로그인</Text>
+            </View>
+          </View>
+
+          <View style={[s.settingContentFluid, { width: contentWidth, marginTop: 34 * typeScale }]}>
+            <View style={[s.settingGroup, { borderRadius: settingCardRadius, paddingVertical: 13 * typeScale, paddingHorizontal: 20 * typeScale }]}>
+              <SetRow label="사용자 정보 수정" go={() => go("editProfile")} />
+              <SetRow label="비상 연락처 수정" go={() => go("editContacts")} />
+              <SetRow label="가상 통화 수신 벨소리 설정" go={() => go("soundSetting")} />
+              <SetRow label="위치 권한 허용 여부 변경" go={() => go("permissionSetting")} />
+              <SetRow label="시험 긴급 메시지 보내기" go={() => { }} />
+            </View>
+
+            <View style={[s.settingGroup, { marginTop: 10 * typeScale, borderRadius: settingCardRadius, paddingVertical: 13 * typeScale, paddingHorizontal: 20 * typeScale }]}>
+              <SetRow label="도움말" go={() => go("help")} />
+              <SetRow label="문의하기" go={() => go("settingDialog")} />
+            </View>
+
+            <View style={[s.settingGroup, { marginTop: 10 * typeScale, borderRadius: settingCardRadius, paddingVertical: 13 * typeScale, paddingHorizontal: 20 * typeScale }]}>
+              <SetRow label="개인정보 정책" go={() => go("terms")} />
+            </View>
+
+            <View style={[s.settingGroup, { marginTop: 10 * typeScale, borderRadius: settingCardRadius, paddingVertical: 13 * typeScale, paddingHorizontal: 20 * typeScale }]}>
+              <SetRow label="탈퇴하기" go={() => go("withdraw")} />
+            </View>
           </View>
         </View>
-        <View style={{ flexDirection: 'column', padding: 10 }}>
-          <View style={s.settingGroup}>
-            <SetRow label="사용자 정보 수정" go={() => go("editProfile")} />
-            <SetRow label="비상 연락처 수정" go={() => go("editContacts")} />
-            <SetRow label="가상 통화 수신 벨소리 설정" go={() => go("soundSetting")} />
-            <SetRow label="위치 권한 관련 여부 변경" go={() => go("permissionSetting")} />
-            <SetRow label="회원 탈퇴" go={() => go("withdraw")} />
-          </View>
-          <View style={s.settingGroup2}>
-            <SetRow label="도움말" go={() => go("help")} />
-            <SetRow label="문의하기" go={() => go("settingDialog")} />
-          </View>
-          <View style={s.settingGroup3}>
-            <SetRow label="개인정보 정책" go={() => go("terms")} />
-          </View>
+
+        <View style={[s.settingFooterFluid, { bottom: 38 * typeScale }]}>
+          <Text style={[s.team, { fontSize: 11 * typeScale, lineHeight: 13 * typeScale }]}>team. Cesh</Text>
+          <Pressable onPress={() => go("settingDialog")}>
+            <Text style={[s.settingLogoutText, { marginTop: 14 * typeScale, fontSize: 11 * typeScale, lineHeight: 13 * typeScale }]}>로그아웃</Text>
+          </Pressable>
         </View>
       </View>
+
       {dialog && (
-        <View style={s.dialog}>
-          <Text style={s.dialogTitle}>로그아웃 하시겠습니까?</Text>
-          <Text style={s.dialogBody}>로그아웃 시에도 안심통화 기능은 사용 가능합니다.</Text>
-          <View style={s.dialogBtns}>
-            <Pressable style={s.dialogCancel} onPress={() => go("setting")}>
-              <Text style={s.dialogButtonText}>취소</Text>
+        <View
+          style={[
+            s.dialog,
+            {
+              width: dialogWidth,
+              height: 136 * typeScale,
+              borderRadius: 12 * typeScale,
+              paddingTop: 29 * typeScale,
+              paddingHorizontal: 15 * typeScale,
+            },
+          ]}
+        >
+          <Text style={[s.dialogTitle, { fontSize: 13 * typeScale, lineHeight: 16 * typeScale }]}>로그아웃 하시겠습니까?</Text>
+          <Text style={[s.dialogBody, { marginTop: 12 * typeScale, fontSize: 10 * typeScale, lineHeight: 15 * typeScale }]}>로그아웃 시에도 안심통화 기능은 사용 가능합니다.</Text>
+          <View style={[s.dialogBtns, { bottom: 18 * typeScale, left: 15 * typeScale, gap: dialogButtonGap }]}>
+            <Pressable
+              style={[
+                s.dialogCancel,
+                {
+                  width: dialogButtonWidth,
+                  height: 30 * typeScale,
+                  borderRadius: 8 * typeScale,
+                },
+              ]}
+              onPress={() => go("setting")}
+            >
+              <Text style={[s.dialogButtonText, { fontSize: 10 * typeScale, lineHeight: 15 * typeScale }]}>취소</Text>
             </Pressable>
-            <Pressable style={s.dialogOk} onPress={() => go("login")}>
-              <Text style={s.dialogButtonText}>로그아웃</Text>
+            <Pressable
+              style={[
+                s.dialogOk,
+                {
+                  width: dialogButtonWidth,
+                  height: 30 * typeScale,
+                  borderRadius: 8 * typeScale,
+                },
+              ]}
+              onPress={() => go("login")}
+            >
+              <Text style={[s.dialogButtonText, { fontSize: 10 * typeScale, lineHeight: 15 * typeScale }]}>로그아웃</Text>
             </Pressable>
           </View>
         </View>
       )}
-      <Text style={s.team}>team. Cesh{"\n"}v0.0.1</Text>
     </Canvas>
   );
 }
-
 function SoundSetting({ go }: { go: (screen: Screen) => void }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.88, Math.min(layoutWidth / W, 1));
+  const contentWidth = Math.min(layoutWidth - 30 * typeScale, 372 * typeScale);
+  const optionIconSize = 26 * typeScale;
+  const radioSize = 20 * typeScale;
+  const soundOptions: Array<{ title: "소리" | "진동" | "무음"; icon: IconName; selected?: boolean }> = [
+    { title: "소리", icon: "volume-high", selected: true },
+    { title: "진동", icon: "vibrate" },
+    { title: "무음", icon: "volume-off" },
+  ];
+
   return (
-    <Canvas>
-      <Top title="가상 통화 수신 벨소리 설정" back={() => go("setting")} />
-      <View style={s.soundPanel}>
-        <Sound title="소리" selected />
-        <Sound title="진동" />
-        <Sound title="무음" />
-      </View>
-      <View style={s.ringtone}>
-        <Text style={s.setRowText}>벨소리</Text>
-        <Text style={s.settingSub}>Over The Horizon</Text>
-        <MaterialCommunityIcons name="chevron-right" size={18} color="#fff" />
+    <Canvas fluid bg="#000">
+      <View style={[s.soundSettingScreen, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <View style={[s.soundSettingHeader, { marginTop: 24 * typeScale, paddingHorizontal: 20 * typeScale }]}>
+          <Pressable style={s.settingBackButton} onPress={() => go("setting")}>
+            <MaterialCommunityIcons name="chevron-left" size={24 * typeScale} color="#fff" />
+          </Pressable>
+          <Text style={[s.soundSettingTitle, { fontSize: 16 * typeScale, lineHeight: 19 * typeScale }]}>가상 통화 수신 벨소리 설정</Text>
+        </View>
+
+        <View style={[s.soundSettingContent, { width: contentWidth, marginTop: 26 * typeScale }]}>
+          <View
+            style={[
+              s.soundModeCard,
+              {
+                height: 138 * typeScale,
+                borderRadius: 12 * typeScale,
+                paddingTop: 16 * typeScale,
+                paddingHorizontal: 15 * typeScale,
+              },
+            ]}
+          >
+            <Text style={[s.soundCardTitle, { fontSize: 11 * typeScale, lineHeight: 13 * typeScale }]}>수신 방식</Text>
+            <View style={[s.soundOptionsRow, { marginTop: 14 * typeScale }]}>
+              {soundOptions.map((option, index) => (
+                <React.Fragment key={option.title}>
+                  <View style={s.soundOptionFluid}>
+                    <MaterialCommunityIcons name={option.icon} size={optionIconSize} color="#FFFFFF" />
+                    <Text style={[s.soundOptionText, { marginTop: 9 * typeScale, fontSize: 12 * typeScale, lineHeight: 14 * typeScale }]}>
+                      {option.title}
+                    </Text>
+                    <View
+                      style={[
+                        s.soundRadioFluid,
+                        {
+                          width: radioSize,
+                          height: radioSize,
+                          borderRadius: radioSize / 2,
+                          marginTop: 13 * typeScale,
+                        },
+                        option.selected && s.soundRadioFluidOn,
+                      ]}
+                    />
+                  </View>
+                  {index < soundOptions.length - 1 && (
+                    <View style={[s.soundOptionDivider, { height: 46 * typeScale, marginTop: 25 * typeScale }]} />
+                  )}
+                </React.Fragment>
+              ))}
+            </View>
+          </View>
+
+          <Pressable
+            style={[
+              s.ringtoneCardFluid,
+              {
+                marginTop: 10 * typeScale,
+                height: 65 * typeScale,
+                borderRadius: 12 * typeScale,
+                paddingHorizontal: 15 * typeScale,
+              },
+            ]}
+          >
+            <View>
+              <Text style={[s.ringtoneLabelFluid, { fontSize: 11 * typeScale, lineHeight: 13 * typeScale }]}>벨소리</Text>
+              <Text style={[s.ringtoneValueFluid, { marginTop: 6 * typeScale, fontSize: 11 * typeScale, lineHeight: 13 * typeScale }]}>Over the Horizon</Text>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={24 * typeScale} color="#AAB0BD" />
+          </Pressable>
+        </View>
       </View>
     </Canvas>
   );
 }
-
 function PermissionSetting({ go }: { go: (screen: Screen) => void }) {
+  const { width, height } = useWindowDimensions();
+  const viewportWidth = Math.max(width || W, MIN_SCREEN_WIDTH);
+  const viewportHeight = Math.max(height || H, MIN_SCREEN_HEIGHT);
+  const layoutWidth = Math.max(
+    MIN_SCREEN_WIDTH,
+    Math.min(viewportWidth, viewportHeight * (W / H)),
+  );
+  const layoutHeight = Math.max(MIN_SCREEN_HEIGHT, viewportHeight);
+  const typeScale = Math.max(0.82, Math.min(layoutWidth / W, 1));
+  const contentWidth = Math.min(layoutWidth - 86 * typeScale, 316 * typeScale);
+  const iconSize = 48 * typeScale;
+  const buttonWidth = Math.min(layoutWidth - 50 * typeScale, 352 * typeScale);
+  const buttonHeight = 42 * typeScale;
+
   return (
-    <Canvas>
-      <Top title="위치 권한 관련 여부 변경" back={() => go("setting")} />
-      <Text style={s.permSettingText}>비활성화 즉시 사용자의 지정된 개인정보가 삭제됩니다. 추후 로그인 서비스 이용을 위해서는 일부 다시 권한을 진행해야 합니다.</Text>
-      <View style={s.permSettingRows}>
-        <PermRow icon="microphone" title="마이크" body="AI 통화 품질 유지를 위해 사용합니다." />
-        <PermRow icon="map-marker" title="위치" body="긴급 상황에서 현재 위치를 보호자에게 전달합니다." />
-      </View>
-      <View style={s.bottomTwo}>
-        <MiniButton label="취소" dark onPress={() => go("setting")} />
-        <MiniButton label="권한 설정하기" onPress={() => go("sosSystem")} wide />
+    <Canvas fluid bg="#000">
+      <View style={[s.permissionSettingScreen, { width: layoutWidth, minHeight: layoutHeight }]}>
+        <View style={[s.soundSettingHeader, { marginTop: 24 * typeScale, paddingHorizontal: 20 * typeScale }]}>
+          <Pressable style={s.settingBackButton} onPress={() => go("setting")}>
+            <MaterialCommunityIcons name="chevron-left" size={24 * typeScale} color="#fff" />
+          </Pressable>
+          <Text style={[s.soundSettingTitle, { fontSize: 16 * typeScale, lineHeight: 19 * typeScale }]}>위치 권한 허용 여부 변경</Text>
+        </View>
+
+        <View
+          style={[
+            s.permissionSettingList,
+            {
+              width: contentWidth,
+              marginTop: 71 * typeScale,
+              gap: 36 * typeScale,
+            },
+          ]}
+        >
+          <PermissionFluidRow
+            icon="microphone"
+            title="마이크"
+            body="AI와 실시간 통화 이용 도중 음성 입력을 받기 위해 마이크 권한이 필요합니다."
+            warning="마이크 권한을 허용하지 않을 시 서비스 이용이 불가합니다."
+            iconSize={iconSize}
+            typeScale={typeScale}
+          />
+          <PermissionFluidRow
+            icon="map-marker"
+            title="위치"
+            body="긴급 문자에 사용자의 현재 위치 안내 링크를 함께 제공하기 위해 위치 권한이 필요합니다."
+            warning="위치 권한을 허용하지 않을 시 긴급 문자에 위치 안내 링크가 포함되지 않습니다."
+            iconSize={iconSize}
+            typeScale={typeScale}
+          />
+        </View>
+
+        <Pressable
+          style={[
+            s.permissionSettingButton,
+            {
+              width: buttonWidth,
+              height: buttonHeight,
+              borderRadius: 7 * typeScale,
+              bottom: 29 * typeScale,
+            },
+          ]}
+          onPress={() => go("sosSystem")}
+        >
+          <Text style={[s.permissionSettingButtonText, { fontSize: 14 * typeScale, lineHeight: 21 * typeScale }]}>권한 설정하기</Text>
+        </Pressable>
       </View>
     </Canvas>
   );
 }
-
 function Withdraw({ go }: { go: (screen: Screen) => void }) {
   return (
     <Canvas>
@@ -2096,7 +2345,7 @@ function SetRow({ label, go }: { label: string; go: () => void }) {
   return (
     <Pressable style={s.setRow} onPress={go}>
       <Text style={s.setRowText}>{label}</Text>
-      <MaterialCommunityIcons name="chevron-right" size={24} color="#fff" />
+      <MaterialCommunityIcons name="chevron-right" size={24} color="#AAB0BD" />
     </Pressable>
   );
 }
@@ -3631,43 +3880,46 @@ const s = StyleSheet.create({
     zIndex: 1,
   },
   helpList: {
-    position: "absolute",
-    top: 83,
-    left: 34,
-    right: 34,
+    alignSelf: "center",
   },
   helpRow: {
-    minHeight: 43,
     borderBottomWidth: 1,
-    borderBottomColor: CARD,
+    borderBottomColor: "#455269",
+  },
+  helpOpen: {
+    backgroundColor: CARD,
+    borderRadius: 4,
+    paddingHorizontal: 12,
+  },
+  helpQuestionLine: {
+    width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  helpOpen: {
-    height: 118,
-    backgroundColor: CARD,
-    borderRadius: 4,
-    paddingHorizontal: 12,
-    alignItems: "flex-start",
-    paddingTop: 12,
-  },
   helpQ: {
     fontFamily: INTER,
-    color: "#7F8BFF",
-    fontSize: 10,
-    fontWeight: "700",
+    color: "#FFFFFF",
+    fontWeight: "400",
     flex: 1,
+    includeFontPadding: false,
+  },
+  helpQMark: {
+    color: "#7A8BFB",
+    fontWeight: "800",
   },
   helpA: {
     fontFamily: INTER,
-    position: "absolute",
-    top: 39,
-    left: 12,
-    right: 12,
     color: "#fff",
     fontSize: 10,
     lineHeight: 16,
+    fontWeight: "400",
+    includeFontPadding: false,
+  },
+  helpScreen: {
+    alignSelf: "center",
+    height: "100%",
+    backgroundColor: "#000000",
   },
   callGradientBase: {
     ...fill,
@@ -3843,12 +4095,44 @@ const s = StyleSheet.create({
     lineHeight: 12,
     textAlign: "center",
   },
-  settingProfile: {
+  settingScreen: {
+    alignSelf: "center",
+    height: "100%",
+    backgroundColor: "#000000",
+  },
+  settingHeaderFluid: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  settingBackButton: {
+    width: 24,
+    height: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  settingHeaderTitle: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "800",
+    includeFontPadding: false,
+    marginLeft: 2,
+  },
+  settingProfileFluid: {
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  settingContentFluid: {
+    alignSelf: "center",
+  },
+  settingFooterFluid: {
     position: "absolute",
-    top: 68,
-    left: 25,
-    width: 352,
-    height: 60,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+  settingProfile: {
     flexDirection: "row",
     alignItems: "center",
   },
@@ -3876,41 +4160,20 @@ const s = StyleSheet.create({
     lineHeight: 13,
   },
   settingGroup: {
-    width: 356,
-    height: 289,
-    borderRadius: 8,
+    width: "100%",
     backgroundColor: CARD,
-    paddingTop: 20,
-    paddingHorizontal: 13,
   },
   settingGroup2: {
-    position: "absolute",
-    top: 600,
-    left: 23,
-    width: 356,
-    height: 126,
-    borderRadius: 8,
+    width: "100%",
     backgroundColor: CARD,
-    paddingTop: 20,
-    paddingHorizontal: 13,
   },
   settingGroup3: {
-    position: "absolute",
-    top: 750,
-    left: 23,
-    width: 356,
-    height: 66,
-    borderRadius: 8,
+    width: "100%",
     backgroundColor: CARD,
-    paddingTop: 20,
-    paddingHorizontal: 13,
   },
   setRow: {
-    width: 336,
-    height: 30,
-    marginBottom: 24,
-    paddingLeft: 10,
-    paddingRight: 6,
+    width: "100%",
+    minHeight: 40,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -3920,18 +4183,14 @@ const s = StyleSheet.create({
     color: "#fff",
     fontSize: 13,
     lineHeight: 16,
-    fontWeight: "800",
+    fontWeight: "400",
+    includeFontPadding: false,
   },
   dialog: {
     position: "absolute",
-    top: 369,
-    left: 53,
-    width: 295,
-    height: 136,
-    borderRadius: 12,
+    top: "42.2%",
+    alignSelf: "center",
     backgroundColor: CARD,
-    paddingTop: 20,
-    paddingHorizontal: 15,
   },
   dialogTitle: {
     fontFamily: INTER,
@@ -3939,33 +4198,25 @@ const s = StyleSheet.create({
     fontSize: 13,
     lineHeight: 16,
     fontWeight: "800",
+    includeFontPadding: false,
   },
   dialogBody: {
     fontFamily: INTER,
     color: MUTED,
     fontSize: 10,
     lineHeight: 15,
-    marginTop: 10,
+    includeFontPadding: false,
   },
   dialogBtns: {
     position: "absolute",
-    bottom: 15,
-    left: 15,
     flexDirection: "row",
-    gap: 5,
   },
   dialogCancel: {
-    width: 130.5,
-    height: 30,
-    borderRadius: 8,
     backgroundColor: "#465264",
     alignItems: "center",
     justifyContent: "center",
   },
   dialogOk: {
-    width: 129.5,
-    height: 30,
-    borderRadius: 8,
     backgroundColor: A,
     alignItems: "center",
     justifyContent: "center",
@@ -3975,18 +4226,125 @@ const s = StyleSheet.create({
     color: "#fff",
     fontSize: 10,
     lineHeight: 15,
+    fontWeight: "400",
+    includeFontPadding: false,
   },
   team: {
     fontFamily: INTER,
-    position: "absolute",
-    bottom: 66,
-    left: 0,
-    right: 0,
     color: A,
     fontSize: 8,
     lineHeight: 12,
     fontWeight: "800",
     textAlign: "center",
+    includeFontPadding: false,
+  },
+  settingLogoutText: {
+    fontFamily: INTER,
+    color: "#8B8B8B",
+    fontWeight: "400",
+    textAlign: "center",
+    textDecorationLine: "underline",
+    includeFontPadding: false,
+  },
+  soundSettingScreen: {
+    alignSelf: "center",
+    height: "100%",
+    backgroundColor: "#000000",
+  },
+  soundSettingHeader: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  soundSettingTitle: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "800",
+    includeFontPadding: false,
+    marginLeft: 2,
+  },
+  soundSettingContent: {
+    alignSelf: "center",
+  },
+  soundModeCard: {
+    width: "100%",
+    backgroundColor: CARD,
+  },
+  soundCardTitle: {
+    fontFamily: INTER,
+    color: "#D5D8E0",
+    fontWeight: "400",
+    includeFontPadding: false,
+  },
+  soundOptionsRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  soundOptionFluid: {
+    flex: 1,
+    alignItems: "center",
+  },
+  soundOptionDivider: {
+    width: 1,
+    backgroundColor: "#455269",
+  },
+  soundOptionText: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    includeFontPadding: false,
+    textAlign: "center",
+  },
+  soundRadioFluid: {
+    borderWidth: 2,
+    borderColor: "#455269",
+    backgroundColor: "transparent",
+  },
+  soundRadioFluidOn: {
+    borderColor: "#6366F1",
+    backgroundColor: "rgba(99,102,241,0.32)",
+  },
+  ringtoneCardFluid: {
+    width: "100%",
+    backgroundColor: CARD,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  ringtoneLabelFluid: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    includeFontPadding: false,
+  },
+  ringtoneValueFluid: {
+    fontFamily: INTER,
+    color: "#8B8B8B",
+    fontWeight: "400",
+    includeFontPadding: false,
+  },
+  permissionSettingScreen: {
+    alignSelf: "center",
+    height: "100%",
+    backgroundColor: "#000000",
+  },
+  permissionSettingList: {
+    alignSelf: "center",
+  },
+  permissionSettingButton: {
+    position: "absolute",
+    alignSelf: "center",
+    backgroundColor: A,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  permissionSettingButtonText: {
+    fontFamily: INTER,
+    color: "#FFFFFF",
+    fontWeight: "400",
+    textAlign: "center",
+    includeFontPadding: false,
   },
   soundPanel: {
     position: "absolute",
